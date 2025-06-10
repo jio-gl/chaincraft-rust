@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  CARGO_UNSTABLE_EDITION2024: true
+
 jobs:
   test:
     name: Test on ${{ matrix.os }}
@@ -35,6 +38,8 @@ jobs:
           ~/.cargo/git
           target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
     
     - name: Check MacOS architecture
       if: matrix.os == 'macos-latest'
