@@ -94,6 +94,12 @@ jobs:
           toolchain: 1.82.0  # Use at least 1.82.0 to handle icu_collections dependency
           override: true
       
+      - name: Check MacOS architecture
+        if: matrix.os == 'macos-latest'
+        run: |
+          echo "MacOS architecture: $(uname -m)"
+          echo "Rust target: $(rustc -vV | grep host)"
+      
       - name: Build binary
         uses: actions-rs/cargo@v1
         with:

@@ -36,6 +36,12 @@ jobs:
           target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
     
+    - name: Check MacOS architecture
+      if: matrix.os == 'macos-latest'
+      run: |
+        echo "MacOS architecture: $(uname -m)"
+        echo "Rust target: $(rustc -vV | grep host)"
+    
     - name: Clippy
       uses: actions-rs/cargo@v1
       with:

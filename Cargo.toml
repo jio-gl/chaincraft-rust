@@ -20,6 +20,10 @@ include = [
     "LICENSE*",
 ]
 
+# Patch to fix macOS ARM build issues
+[patch.crates-io]
+ring = { version = "0.16.20" }
+
 [lib]
 name = "chaincraft_rust"
 path = "src/lib.rs"
