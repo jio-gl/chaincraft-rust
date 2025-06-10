@@ -1,4 +1,4 @@
-use chaincraft_rust::{ChainCraftNode, error::Result, storage::MemoryStorage};
+use chaincraft_rust::{error::Result, storage::MemoryStorage, ChainCraftNode};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::time::sleep;
@@ -66,6 +66,38 @@ async fn wait_for_propagation(
         sleep(Duration::from_millis(500)).await;
     }
     false
+}
+
+#[tokio::test]
+async fn test_node_creation_and_startup() -> Result<()> {
+    // Create a node
+    let mut node = ChainCraftNode::new_default().await?;
+    
+    // Get the node ID and validate it's not empty
+    let node_id = node.peer_id().to_string();
+    assert!(!node_id.is_empty(), "Node ID should not be empty");
+    
+    // Start the node
+    node.start().await?;
+    
+    // Let it run for a brief moment
+    sleep(Duration::from_millis(500)).await;
+    
+    // Verify that the node is running
+    assert!(node.is_running(), "Node should be running after start");
+    
+    // Measure time to stop the node
+    let start_time = Instant::now();
+    node.close().await?;
+    let stop_duration = start_time.elapsed();
+    
+    // Verify that the node stopped within a reasonable time
+    assert!(stop_duration < Duration::from_secs(5), "Node should stop within 5 seconds");
+    
+    // Verify that the node is no longer running
+    assert!(!node.is_running(), "Node should not be running after stop");
+    
+    Ok(())
 }
 
 #[tokio::test]

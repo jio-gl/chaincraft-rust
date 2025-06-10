@@ -3,6 +3,8 @@ use chaincraft_rust::{
     network::PeerId,
     storage::MemoryStorage,
     ChainCraftNode,
+    error::Result, 
+    examples::randomness_beacon::{RandomnessBeaconObject, BeaconMessage}
 };
 use serde_json::json;
 use std::sync::Arc;
@@ -32,10 +34,10 @@ async fn test_beacon_round_generation() {
 
     // Test beacon round generation
     let beacon_obj = RandomnessBeaconObject::new().unwrap();
-    
-    let msg = BeaconMessage::Synchronize { 
-        round: 1, 
-        old_beacon: None 
+
+    let msg = BeaconMessage::Synchronize {
+        round: 1,
+        old_beacon: None,
     };
     beacon_obj.handle_message(msg.clone()).await.unwrap();
     // Success is verified by not throwing an exception
@@ -217,23 +219,41 @@ async fn test_beacon_bias_resistance() {
     // Success is verified by not throwing an exception
 }
 
+#[tokio::test]
+async fn test_beacon_construction() -> Result<()> {
+    // Test beacon round generation
+    let beacon_obj = RandomnessBeaconObject::new().unwrap();
+
+    let msg = BeaconMessage::Synchronize {
+        round: 1,
+        old_beacon: None,
+    };
+    beacon_obj.handle_message(msg.clone()).await.unwrap();
+    // Success is verified by not throwing an exception
+
+    Ok(())
+}
+
+#[tokio::test]
 async fn test_beacon_node_integration() -> Result<(), Box<dyn std::error::Error>> {
-    let node = create_beacon_node().await;
-    
+    let mut node = create_beacon_node().await;
+
     // Create and send a beacon message
     let beacon_msg = json!({
         "type": "BEACON_MSG",
-        "message": {
-            "type": "Synchronize",
+        "data": {
+            "msg_type": "SYNC",
             "round": 1,
             "old_beacon": null
         }
     });
-    
-    node.create_shared_message_with_data(beacon_msg).await.unwrap();
+
+    node.create_shared_message_with_data(beacon_msg)
+        .await
+        .unwrap();
     sleep(Duration::from_millis(100)).await;
-    
+
     node.close().await.unwrap();
-    
+
     Ok(())
 }

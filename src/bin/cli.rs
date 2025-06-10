@@ -2,7 +2,10 @@
 
 use chaincraft_rust::{ChainCraftNode, Result};
 use clap::{Parser, Subcommand};
-use tracing::{info, Level};
+use std::path::PathBuf;
+use std::process;
+use tokio::time::Duration;
+use tracing::{info, warn, error, Level};
 use tracing_subscriber;
 
 #[derive(Parser)]
@@ -28,6 +31,10 @@ struct Cli {
     /// Use memory storage instead of persistent storage
     #[arg(short = 'm', long)]
     memory: bool,
+
+    /// Set verbosity level (0-4)
+    #[arg(short, long, default_value_t = 2)]
+    verbosity: u8,
 }
 
 #[derive(Subcommand)]
