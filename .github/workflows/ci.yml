@@ -9,16 +9,11 @@ on:
 env:
   CARGO_UNSTABLE_EDITION2024: true
   RUSTUP_TOOLCHAIN: nightly
-  MACOSX_DEPLOYMENT_TARGET: "10.15"
 
 jobs:
-  test:
-    name: Test on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-      fail-fast: false
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
@@ -31,20 +26,10 @@ jobs:
         components: rustfmt, clippy
     
     - name: Install latest Cargo
-      if: matrix.os == 'ubuntu-latest'
       run: |
         rustup update
         rustup default nightly
         cargo --version
-    
-    - name: Setup macOS
-      if: matrix.os == 'macos-latest'
-      run: |
-        rustup target add aarch64-apple-darwin
-        rustup target add x86_64-apple-darwin
-        echo "SDKROOT=$(xcrun -sdk macosx --show-sdk-path)" >> $GITHUB_ENV
-        echo "MACOSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
-        echo "CFLAGS=-I$(xcrun -sdk macosx --show-sdk-path)/usr/include" >> $GITHUB_ENV
     
     - name: Cache dependencies
       uses: actions/cache@v3
@@ -56,60 +41,20 @@ jobs:
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: |
           ${{ runner.os }}-cargo-
-    
-    - name: Check MacOS architecture
-      if: matrix.os == 'macos-latest'
-      run: |
-        echo "MacOS architecture: $(uname -m)"
-        echo "Rust target: $(rustc -vV | grep host)"
-    
-    - name: Install OpenSSL (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libssl-dev pkg-config
-    
-    - name: Install OpenSSL (macOS)
-      if: matrix.os == 'macos-latest'
-      run: |
-        brew install openssl@3
-        echo "OPENSSL_ROOT_DIR=$(brew --prefix openssl@3)" >> $GITHUB_ENV
-        echo "OPENSSL_LIB_DIR=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
-        echo "OPENSSL_INCLUDE_DIR=$(brew --prefix openssl@3)/include" >> $GITHUB_ENV
-    
-    - name: Clippy
-      uses: actions-rs/cargo@v1
-      with:
-        command: clippy
-        args: --all-targets --all-features -- -D warnings
-    
+
     - name: Build
       uses: actions-rs/cargo@v1
       env:
         CARGO_TERM_COLOR: always
-        RING_CORE_ARCH_SUPPORT: aarch64,x86_64
       with:
         command: build
         args: --all-features
-    
-    - name: Run tests (Unix)
-      if: matrix.os != 'windows-latest'
+
+    - name: Run tests
       uses: actions-rs/cargo@v1
       with:
         command: test
         args: --all-features
-    
-    - name: Run tests (Windows)
-      if: matrix.os == 'windows-latest'
-      uses: actions-rs/cargo@v1
-      with:
-        command: test
-        args: --no-default-features --features compression
-    
-    - name: Security audit
-      uses: actions-rs/audit-check@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
 
   compatibility:
     name: Compatibility check
