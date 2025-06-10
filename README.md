@@ -1,8 +1,10 @@
 # Chaincraft Rust
 
+<!--
 [![Crates.io](https://img.shields.io/crates/v/chaincraft-rust.svg)](https://crates.io/crates/chaincraft-rust)
 [![Documentation](https://docs.rs/chaincraft-rust/badge.svg)](https://docs.rs/chaincraft-rust)
 [![Build Status](https://github.com/chaincraft-org/chaincraft-rust/workflows/CI/badge.svg)](https://github.com/chaincraft-org/chaincraft-rust/actions)
+-->
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
