@@ -1,16 +1,16 @@
-use chaincraft_rust::{network::PeerId, storage::MemoryStorage, ChainCraftNode};
+use chaincraft_rust::{network::PeerId, storage::MemoryStorage, ChaincraftNode};
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
-async fn create_node() -> ChainCraftNode {
+async fn create_node() -> ChaincraftNode {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
-    ChainCraftNode::new(id, storage)
+    ChaincraftNode::new(id, storage)
 }
 
 #[allow(dead_code)]
 async fn wait_for_propagation(
-    nodes: &[ChainCraftNode],
+    nodes: &[ChaincraftNode],
     expected_count: usize,
     timeout_secs: u64,
 ) -> bool {

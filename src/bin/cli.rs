@@ -1,8 +1,9 @@
 //! ChainCraft CLI application
 
-use chaincraft_rust::{ChainCraftNode, Result};
+use chaincraft_rust::{ChaincraftNode, Result};
 use clap::{Parser, Subcommand};
 use tracing::{info, Level};
+
 
 #[derive(Parser)]
 #[command(name = "chaincraft-cli")]
@@ -62,7 +63,7 @@ async fn main() -> Result<()> {
         Some(Commands::Start) | None => {
             info!("Starting ChainCraft node on port {}", cli.port);
 
-            let mut node = ChainCraftNode::builder()
+            let mut node = ChaincraftNode::builder()
                 .port(cli.port)
                 .max_peers(cli.max_peers)
                 .with_persistent_storage(!cli.memory)

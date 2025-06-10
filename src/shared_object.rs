@@ -2,8 +2,8 @@
 
 pub use crate::shared::SharedObjectId;
 use crate::{
-    error::{ChainCraftError, Result},
-    shared::{MessageType, SharedMessage},
+    error::{ChaincraftError, Result},
+    shared::{MessageType, SharedMessage, SharedObject},
 };
 use async_trait::async_trait;
 use chrono;

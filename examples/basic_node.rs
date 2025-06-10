@@ -1,7 +1,7 @@
 //! This example demonstrates how to create and run a basic ChainCraft node
 //! with default configuration.
 
-use chaincraft_rust::{error::Result, ChainCraftNode};
+use chaincraft_rust::{error::Result, ChaincraftNode};
 use tokio::time::{sleep, Duration};
 
 #[tokio::main]
@@ -10,7 +10,7 @@ async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
 
     // Create a new node with default configuration
-    let mut node = ChainCraftNode::new_with_defaults().await?;
+    let mut node = ChaincraftNode::new_default();
 
     // Start the node
     node.start().await?;

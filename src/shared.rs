@@ -1,6 +1,6 @@
 //! Shared objects and messages for distributed state management
 
-use crate::error::{ChainCraftError, CryptoError, Result, SerializationError};
+use crate::error::{ChaincraftError, CryptoError, Result, SerializationError};
 use async_trait::async_trait;
 use bincode;
 use hex;
@@ -237,7 +237,7 @@ impl SharedMessage {
     /// Create a custom message
     pub fn custom<T: Serialize>(message_type: impl Into<String>, data: T) -> Result<Self> {
         let data = serde_json::to_value(data)
-            .map_err(|e| ChainCraftError::Serialization(SerializationError::Json(e)))?;
+            .map_err(|e| ChaincraftError::Serialization(SerializationError::Json(e)))?;
         Ok(Self::new(MessageType::Custom(message_type.into()), data))
     }
 
@@ -261,7 +261,7 @@ impl SharedMessage {
             match public_key {
                 crate::crypto::PublicKey::Ed25519(pk) => {
                     if sig_bytes.len() != 64 {
-                        return Err(ChainCraftError::Crypto(CryptoError::InvalidSignature));
+                        return Err(ChaincraftError::Crypto(CryptoError::InvalidSignature));
                     }
 
                     // Create the signature bytes array safely
@@ -277,7 +277,7 @@ impl SharedMessage {
                 crate::crypto::PublicKey::Secp256k1(pk) => {
                     let sig_result = k256::ecdsa::Signature::from_slice(sig_bytes.as_slice());
                     if sig_result.is_err() {
-                        return Err(ChainCraftError::Crypto(CryptoError::InvalidSignature));
+                        return Err(ChaincraftError::Crypto(CryptoError::InvalidSignature));
                     }
 
                     use k256::ecdsa::{signature::Verifier, VerifyingKey};
@@ -317,25 +317,25 @@ impl SharedMessage {
     /// Convert message to bytes for signing/verification
     pub fn to_bytes(&self) -> Result<Vec<u8>> {
         bincode::serialize(self)
-            .map_err(|e| ChainCraftError::Serialization(SerializationError::Binary(e)))
+            .map_err(|e| ChaincraftError::Serialization(SerializationError::Binary(e)))
     }
 
     /// Create message from bytes
     pub fn from_bytes(bytes: &[u8]) -> Result<Self> {
         bincode::deserialize(bytes)
-            .map_err(|e| ChainCraftError::Serialization(SerializationError::Binary(e)))
+            .map_err(|e| ChaincraftError::Serialization(SerializationError::Binary(e)))
     }
 
     /// Serialize to JSON
     pub fn to_json(&self) -> Result<String> {
         serde_json::to_string(self)
-            .map_err(|e| ChainCraftError::Serialization(SerializationError::Json(e)))
+            .map_err(|e| ChaincraftError::Serialization(SerializationError::Json(e)))
     }
 
     /// Deserialize from JSON
     pub fn from_json(json: &str) -> Result<Self> {
         serde_json::from_str(json)
-            .map_err(|e| ChainCraftError::Serialization(SerializationError::Json(e)))
+            .map_err(|e| ChaincraftError::Serialization(SerializationError::Json(e)))
     }
 }
 

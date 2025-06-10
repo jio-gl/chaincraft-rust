@@ -1,6 +1,9 @@
 use crate::{
-    crypto::ecdsa::{ECDSASigner, ECDSAVerifier},
-    error::{ChainCraftError, Result},
+    crypto::{
+        ecdsa::{ECDSASigner, ECDSAVerifier},
+        KeyType, PrivateKey, PublicKey, Signature,
+    },
+    error::{ChaincraftError, Result},
     shared::{MessageType, SharedMessage, SharedObjectId},
     shared_object::ApplicationObject,
 };
@@ -280,7 +283,7 @@ impl RandomnessBeaconObject {
     /// Finalize the current round and generate randomness
     pub fn finalize_round(&mut self) -> Result<String> {
         if !self.can_finalize_round() {
-            return Err(ChainCraftError::validation(
+            return Err(ChaincraftError::validation(
                 "Insufficient proofs/signatures for finalization",
             ));
         }
@@ -428,7 +431,7 @@ impl ApplicationObject for RandomnessBeaconObject {
     async fn add_message(&mut self, message: SharedMessage) -> Result<()> {
         let beacon_msg: BeaconMessageType =
             serde_json::from_value(message.data.clone()).map_err(|e| {
-                ChainCraftError::Serialization(crate::error::SerializationError::Json(e))
+                ChaincraftError::Serialization(crate::error::SerializationError::Json(e))
             })?;
 
         let processed = match &beacon_msg {
@@ -595,7 +598,7 @@ pub mod helpers {
         };
 
         serde_json::to_value(registration)
-            .map_err(|e| ChainCraftError::Serialization(crate::error::SerializationError::Json(e)))
+            .map_err(|e| ChaincraftError::Serialization(crate::error::SerializationError::Json(e)))
     }
 
     pub fn create_vrf_proof_message(
@@ -620,7 +623,7 @@ pub mod helpers {
         };
 
         serde_json::to_value(vrf_msg)
-            .map_err(|e| ChainCraftError::Serialization(crate::error::SerializationError::Json(e)))
+            .map_err(|e| ChaincraftError::Serialization(crate::error::SerializationError::Json(e)))
     }
 
     pub fn create_partial_signature_message(
@@ -641,7 +644,7 @@ pub mod helpers {
         };
 
         serde_json::to_value(partial_sig_msg)
-            .map_err(|e| ChainCraftError::Serialization(crate::error::SerializationError::Json(e)))
+            .map_err(|e| ChaincraftError::Serialization(crate::error::SerializationError::Json(e)))
     }
 
     pub fn create_bias_challenge(
@@ -664,6 +667,6 @@ pub mod helpers {
         };
 
         serde_json::to_value(challenge)
-            .map_err(|e| ChainCraftError::Serialization(crate::error::SerializationError::Json(e)))
+            .map_err(|e| ChaincraftError::Serialization(crate::error::SerializationError::Json(e)))
     }
 }

@@ -1,12 +1,12 @@
-use chaincraft_rust::{network::PeerId, storage::MemoryStorage, ChainCraftNode};
+use chaincraft_rust::{network::PeerId, storage::MemoryStorage, ChaincraftNode};
 use serde_json::json;
 use std::sync::Arc;
 use tokio::time::{sleep, Duration, Instant};
 
-async fn create_performance_node() -> ChainCraftNode {
+async fn create_performance_node() -> ChaincraftNode {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
-    let mut node = ChainCraftNode::new(id, storage);
+    let mut node = ChaincraftNode::new(id, storage);
     node.start().await.unwrap();
     node
 }

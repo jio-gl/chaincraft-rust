@@ -1,7 +1,7 @@
 //! ECDSA signature implementation
 
 use crate::crypto::{KeyType, KeyedCryptoPrimitive, PrivateKey, PublicKey, Signature};
-use crate::error::{ChainCraftError, CryptoError, Result};
+use crate::error::{ChaincraftError, CryptoError, Result};
 use async_trait::async_trait;
 use base64::{engine::general_purpose, Engine as _};
 use serde::{Deserialize, Serialize};
@@ -70,7 +70,7 @@ impl KeyedCryptoPrimitive for EcdsaSignature {
             PublicKey::Ed25519(pk) => {
                 // For Ed25519, we need a 64-byte signature
                 if output.len() != 64 {
-                    return Err(ChainCraftError::Crypto(CryptoError::InvalidSignature));
+                    return Err(ChaincraftError::Crypto(CryptoError::InvalidSignature));
                 }
 
                 // With v1.0.1, the signature requires a direct array conversion
@@ -91,7 +91,7 @@ impl KeyedCryptoPrimitive for EcdsaSignature {
                 // For Secp256k1, parse the signature and verify
                 let signature = match k256::ecdsa::Signature::from_slice(output.as_slice()) {
                     Ok(s) => s,
-                    Err(_) => return Err(ChainCraftError::Crypto(CryptoError::InvalidSignature)),
+                    Err(_) => return Err(ChaincraftError::Crypto(CryptoError::InvalidSignature)),
                 };
 
                 use k256::ecdsa::{signature::Verifier, VerifyingKey};
@@ -209,7 +209,7 @@ impl ECDSAVerifier {
         // Decode base64
         let key_bytes = general_purpose::STANDARD
             .decode(cleaned_pem)
-            .map_err(|_| ChainCraftError::Crypto(CryptoError::InvalidSignature))?;
+            .map_err(|_| ChaincraftError::Crypto(CryptoError::InvalidSignature))?;
 
         // Try to parse as Ed25519 first (32 bytes)
         if key_bytes.len() == 32 {
@@ -218,16 +218,16 @@ impl ECDSAVerifier {
 
             match ed25519_dalek::VerifyingKey::from_bytes(&array) {
                 Ok(pk) => Ok(PublicKey::Ed25519(pk)),
-                Err(_) => Err(ChainCraftError::Crypto(CryptoError::InvalidSignature)),
+                Err(_) => Err(ChaincraftError::Crypto(CryptoError::InvalidSignature)),
             }
         } else if key_bytes.len() == 33 {
             // Try secp256k1 compressed format
             match k256::PublicKey::from_sec1_bytes(&key_bytes) {
                 Ok(pk) => Ok(PublicKey::Secp256k1(pk)),
-                Err(_) => Err(ChainCraftError::Crypto(CryptoError::InvalidSignature)),
+                Err(_) => Err(ChaincraftError::Crypto(CryptoError::InvalidSignature)),
             }
         } else {
-            Err(ChainCraftError::Crypto(CryptoError::InvalidSignature))
+            Err(ChaincraftError::Crypto(CryptoError::InvalidSignature))
         }
     }
 }

@@ -1,12 +1,12 @@
 use chaincraft_rust::{network::PeerId, storage::MemoryStorage};
-use chaincraft_rust::{ChainCraftNode, Result};
+use chaincraft_rust::{ChaincraftNode, Result};
 use serde_json::json;
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
 #[tokio::test]
 async fn test_node_initialization() -> Result<()> {
-    let node = ChainCraftNode::builder()
+    let node = ChaincraftNode::builder()
         .with_persistent_storage(false)
         .port(8080)
         .max_peers(10)
@@ -23,7 +23,7 @@ async fn test_node_initialization() -> Result<()> {
 
 #[tokio::test]
 async fn test_node_start_stop() -> Result<()> {
-    let mut node = ChainCraftNode::builder()
+    let mut node = ChaincraftNode::builder()
         .with_persistent_storage(false)
         .build()?;
 
@@ -43,9 +43,9 @@ async fn test_node_start_stop() -> Result<()> {
 
 #[tokio::test]
 async fn test_multiple_nodes_different_ports() -> Result<()> {
-    let node1 = ChainCraftNode::builder().port(8081).build()?;
+    let node1 = ChaincraftNode::builder().port(8081).build()?;
 
-    let node2 = ChainCraftNode::builder().port(8082).build()?;
+    let node2 = ChaincraftNode::builder().port(8082).build()?;
 
     // Verify nodes have different ports
     assert_ne!(node1.port(), node2.port());
@@ -57,9 +57,9 @@ async fn test_multiple_nodes_different_ports() -> Result<()> {
 
 #[tokio::test]
 async fn test_connect_to_peer() -> Result<()> {
-    let mut node1 = ChainCraftNode::builder().port(8083).build()?;
+    let mut node1 = ChaincraftNode::builder().port(8083).build()?;
 
-    let mut node2 = ChainCraftNode::builder().port(8084).build()?;
+    let mut node2 = ChaincraftNode::builder().port(8084).build()?;
 
     node1.start().await?;
     node2.start().await?;
@@ -81,7 +81,7 @@ async fn test_connect_to_peer() -> Result<()> {
 
 #[tokio::test]
 async fn test_max_peers_limit() -> Result<()> {
-    let mut node = ChainCraftNode::builder().max_peers(2).port(8085).build()?;
+    let mut node = ChaincraftNode::builder().max_peers(2).port(8085).build()?;
 
     node.start().await?;
 
@@ -107,7 +107,7 @@ async fn test_max_peers_limit() -> Result<()> {
 
 #[tokio::test]
 async fn test_create_shared_message() -> Result<()> {
-    let mut node = ChainCraftNode::builder()
+    let mut node = ChaincraftNode::builder()
         .with_persistent_storage(false)
         .build()?;
 
@@ -132,14 +132,14 @@ async fn test_create_shared_message() -> Result<()> {
 #[tokio::test]
 async fn test_persistent_vs_memory_storage() -> Result<()> {
     // Test memory storage
-    let mut memory_node = ChainCraftNode::builder()
+    let mut memory_node = ChaincraftNode::builder()
         .with_persistent_storage(false)
         .build()?;
 
     memory_node.start().await?;
 
     // Test persistent storage (using memory for testing)
-    let mut persistent_node = ChainCraftNode::builder()
+    let mut persistent_node = ChaincraftNode::builder()
         .with_persistent_storage(true)
         .build()?;
 
@@ -158,7 +158,7 @@ async fn test_persistent_vs_memory_storage() -> Result<()> {
 
 #[tokio::test]
 async fn test_node_lifecycle() -> Result<()> {
-    let mut node = ChainCraftNode::builder()
+    let mut node = ChaincraftNode::builder()
         .with_persistent_storage(false)
         .build()?;
 
@@ -185,7 +185,7 @@ async fn test_node_lifecycle() -> Result<()> {
 async fn test_node_restart_capability() {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
-    let mut node = ChainCraftNode::new(id.clone(), storage.clone());
+    let mut node = ChaincraftNode::new(id.clone(), storage.clone());
 
     // Start node
     node.start().await.unwrap();
@@ -196,7 +196,7 @@ async fn test_node_restart_capability() {
     assert!(!node.is_running_async().await);
 
     // Create new node with same ID and start again
-    let mut new_node = ChainCraftNode::new(id, storage);
+    let mut new_node = ChaincraftNode::new(id, storage);
     new_node.start().await.unwrap();
     assert!(new_node.is_running_async().await);
 
@@ -207,7 +207,7 @@ async fn test_node_restart_capability() {
 async fn test_node_configuration_persistence() {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
-    let mut node = ChainCraftNode::new(id, storage);
+    let mut node = ChaincraftNode::new(id, storage);
     node.start().await.unwrap();
 
     // Create a message to test data persistence
@@ -226,7 +226,7 @@ async fn test_node_configuration_persistence() {
 async fn test_graceful_shutdown() {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
-    let mut node = ChainCraftNode::new(id, storage);
+    let mut node = ChaincraftNode::new(id, storage);
     node.start().await.unwrap();
 
     // Create some activity before shutdown
@@ -247,21 +247,21 @@ async fn test_node_isolation() {
     let mut node1 = {
         let id = PeerId::new();
         let storage = Arc::new(MemoryStorage::new());
-        let mut node = ChainCraftNode::new(id, storage);
+        let mut node = ChaincraftNode::new(id, storage);
         node.start().await.unwrap();
         node
     };
     let mut node2 = {
         let id = PeerId::new();
         let storage = Arc::new(MemoryStorage::new());
-        let mut node = ChainCraftNode::new(id, storage);
+        let mut node = ChaincraftNode::new(id, storage);
         node.start().await.unwrap();
         node
     };
     let mut node3 = {
         let id = PeerId::new();
         let storage = Arc::new(MemoryStorage::new());
-        let mut node = ChainCraftNode::new(id, storage);
+        let mut node = ChaincraftNode::new(id, storage);
         node.start().await.unwrap();
         node
     };
@@ -291,7 +291,7 @@ async fn test_node_isolation() {
 async fn test_error_recovery() {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
-    let mut node = ChainCraftNode::new(id, storage);
+    let mut node = ChaincraftNode::new(id, storage);
     node.start().await.unwrap();
 
     // Try to create an invalid message that might cause errors

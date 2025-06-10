@@ -115,8 +115,6 @@ openssl-tls = ["dep:openssl", "libp2p/tls"]
 [target.'cfg(unix)'.dependencies]
 openssl = { version = "0.10", optional = true }
 
-[target.'cfg(not(target_os = "windows"))'.features]
-default = ["compression", "openssl-tls"]
 
 [profile.release]
 opt-level = 3

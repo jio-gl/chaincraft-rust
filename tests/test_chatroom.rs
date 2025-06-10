@@ -4,16 +4,16 @@ use chaincraft_rust::{
     network::PeerId,
     shared_object::ApplicationObject,
     storage::MemoryStorage,
-    ChainCraftNode,
+    ChaincraftNode,
 };
 use serde_json::json;
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
-async fn create_node_with_chatroom() -> ChainCraftNode {
+async fn create_node_with_chatroom() -> ChaincraftNode {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
-    let mut node = ChainCraftNode::new(id, storage);
+    let mut node = ChaincraftNode::new(id, storage);
 
     // Add a ChatroomObject to the node
     let chatroom_obj: Box<dyn ApplicationObject> = Box::new(ChatroomObject::new());

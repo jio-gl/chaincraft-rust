@@ -1,7 +1,7 @@
-//! Peer discovery system for ChainCraft
+//! Peer discovery system for Chaincraft
 
 use crate::{
-    error::{ChainCraftError, Result},
+    error::{ChaincraftError, Result},
     network::{PeerId, PeerInfo},
 };
 use serde::{Deserialize, Serialize};

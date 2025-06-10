@@ -1,18 +1,18 @@
 use anyhow::Result;
 use chaincraft_rust::{
-    error::{ChainCraftError, SerializationError},
+    error::{ChaincraftError, SerializationError},
     network::PeerId,
     storage::MemoryStorage,
-    ChainCraftNode,
+    ChaincraftNode,
 };
 use serde_json::json;
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
-async fn create_test_node_with_port(port: u16) -> ChainCraftNode {
+async fn create_test_node_with_port(port: u16) -> ChaincraftNode {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
-    let mut node = ChainCraftNode::new(id, storage);
+    let mut node = ChaincraftNode::new(id, storage);
     node.set_port(port);
     node.start().await.unwrap();
     node
@@ -71,7 +71,7 @@ async fn test_message_broadcasting() -> Result<()> {
         .unwrap();
     let message_json = node1.get_object(&message_hash).await?;
     let value: serde_json::Value = serde_json::from_str(&message_json)
-        .map_err(|e| ChainCraftError::Serialization(SerializationError::Json(e)))?;
+        .map_err(|e| ChaincraftError::Serialization(SerializationError::Json(e)))?;
     let data = value["data"].to_string();
     assert_eq!(data, test_data.to_string());
 
@@ -120,7 +120,7 @@ async fn test_concurrent_message_creation() -> Result<()> {
     let mut ids = std::collections::HashSet::new();
     for message_json in &messages {
         let value: serde_json::Value = serde_json::from_str(message_json)
-            .map_err(|e| ChainCraftError::Serialization(SerializationError::Json(e)))?;
+            .map_err(|e| ChaincraftError::Serialization(SerializationError::Json(e)))?;
         let id = value["id"].to_string();
         assert!(ids.insert(id));
     }
@@ -174,7 +174,7 @@ async fn test_message_validation() -> Result<()> {
             .unwrap();
         let message_json = node.get_object(&message_hash).await?;
         let value: serde_json::Value = serde_json::from_str(&message_json)
-            .map_err(|e| ChainCraftError::Serialization(SerializationError::Json(e)))?;
+            .map_err(|e| ChaincraftError::Serialization(SerializationError::Json(e)))?;
         let data_field = value["data"].to_string();
         assert_eq!(data_field, data.to_string(), "Test case {} failed", i);
     }
@@ -198,7 +198,7 @@ async fn test_node_lifecycle() -> Result<()> {
         .unwrap();
     let message_json = node.get_object(&message_hash).await?;
     let value: serde_json::Value = serde_json::from_str(&message_json)
-        .map_err(|e| ChainCraftError::Serialization(SerializationError::Json(e)))?;
+        .map_err(|e| ChaincraftError::Serialization(SerializationError::Json(e)))?;
     let data = value["data"].to_string();
     assert_eq!(data, data.to_string());
 
@@ -237,7 +237,7 @@ async fn test_multiple_nodes_isolation() -> Result<()> {
             .unwrap();
         let message_json = node.get_object(&message_hash).await?;
         let value: serde_json::Value = serde_json::from_str(&message_json)
-            .map_err(|e| ChainCraftError::Serialization(SerializationError::Json(e)))?;
+            .map_err(|e| ChaincraftError::Serialization(SerializationError::Json(e)))?;
         let data = value["data"].to_string();
         assert_eq!(data, data.to_string());
     }
@@ -268,7 +268,7 @@ async fn test_error_handling() -> Result<()> {
         .unwrap();
     let message_json = node.get_object(&message_hash).await?;
     let value: serde_json::Value = serde_json::from_str(&message_json)
-        .map_err(|e| ChainCraftError::Serialization(SerializationError::Json(e)))?;
+        .map_err(|e| ChaincraftError::Serialization(SerializationError::Json(e)))?;
     let data = value["data"].to_string();
     assert_eq!(data, data.to_string());
 

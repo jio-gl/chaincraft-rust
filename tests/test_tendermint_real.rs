@@ -6,17 +6,17 @@ use chaincraft_rust::{
     network::PeerId,
     shared_object::ApplicationObject,
     storage::MemoryStorage,
-    ChainCraftNode,
+    ChaincraftNode,
 };
 use serde_json::json;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
-async fn create_tendermint_node() -> (ChainCraftNode, TendermintObject) {
+async fn create_tendermint_node() -> (ChaincraftNode, TendermintObject) {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
-    let mut node = ChainCraftNode::new(id, storage);
+    let mut node = ChaincraftNode::new(id, storage);
 
     let tendermint_obj = TendermintObject::new().unwrap();
     let app_obj: Box<dyn ApplicationObject> = Box::new(tendermint_obj);

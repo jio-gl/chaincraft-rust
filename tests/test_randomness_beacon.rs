@@ -4,16 +4,16 @@ use chaincraft_rust::{
     examples::randomness_beacon::{BeaconMessageType, RandomnessBeaconObject},
     network::PeerId,
     storage::MemoryStorage,
-    ChainCraftNode,
+    ChaincraftNode,
 };
 use serde_json::json;
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
-async fn create_beacon_node() -> ChainCraftNode {
+async fn create_beacon_node() -> ChaincraftNode {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
-    let mut node = ChainCraftNode::new(id, storage);
+    let mut node = ChaincraftNode::new(id, storage);
     node.start().await.unwrap();
     node
 }

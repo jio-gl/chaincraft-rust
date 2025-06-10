@@ -7,9 +7,10 @@ pub mod pow;
 pub mod vdf;
 pub mod vrf;
 
-use crate::error::{ChainCraftError, CryptoError, Result};
+use crate::error::{ChaincraftError, CryptoError, Result};
 use async_trait::async_trait;
 use ed25519_dalek::{Signer, Verifier};
+use k256::ecdsa::signature::Verifier as K256Verifier;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -112,7 +113,7 @@ impl PublicKey {
     /// Create from hex string
     pub fn from_hex(hex_str: &str, key_type: KeyType) -> Result<Self> {
         let bytes = hex::decode(hex_str).map_err(|_| {
-            ChainCraftError::Crypto(crate::error::CryptoError::InvalidPublicKey {
+            ChaincraftError::Crypto(crate::error::CryptoError::InvalidPublicKey {
                 reason: "Invalid hex encoding".to_string(),
             })
         })?;
@@ -120,12 +121,12 @@ impl PublicKey {
         match key_type {
             KeyType::Ed25519 => {
                 let key_bytes: [u8; 32] = bytes.try_into().map_err(|_| {
-                    ChainCraftError::Crypto(crate::error::CryptoError::InvalidPublicKey {
+                    ChaincraftError::Crypto(crate::error::CryptoError::InvalidPublicKey {
                         reason: "Invalid key length for Ed25519".to_string(),
                     })
                 })?;
                 let key = ed25519_dalek::VerifyingKey::from_bytes(&key_bytes).map_err(|_| {
-                    ChainCraftError::Crypto(crate::error::CryptoError::InvalidPublicKey {
+                    ChaincraftError::Crypto(crate::error::CryptoError::InvalidPublicKey {
                         reason: "Invalid Ed25519 key".to_string(),
                     })
                 })?;
@@ -133,7 +134,7 @@ impl PublicKey {
             },
             KeyType::Secp256k1 => {
                 let key = k256::PublicKey::from_sec1_bytes(&bytes).map_err(|_| {
-                    ChainCraftError::Crypto(crate::error::CryptoError::InvalidPublicKey {
+                    ChaincraftError::Crypto(crate::error::CryptoError::InvalidPublicKey {
                         reason: "Invalid Secp256k1 key".to_string(),
                     })
                 })?;
@@ -149,18 +150,16 @@ impl PublicKey {
         }
     }
 
-    pub fn verify(&self, message: &[u8], signature: &Signature) -> Result<bool> {
+        pub fn verify(&self, message: &[u8], signature: &Signature) -> Result<bool> {
         match (self, signature) {
-            (PublicKey::Ed25519(key), Signature::Ed25519(sig)) => {
-                Ok(key.verify(message, sig).is_ok())
-            },
-            (PublicKey::Secp256k1(key), Signature::Secp256k1(sig)) => {
-                use k256::ecdsa::VerifyingKey;
-                let verifying_key = VerifyingKey::from(key);
-                use k256::ecdsa::signature::Verifier;
+            (PublicKey::Ed25519(pk), Signature::Ed25519(sig)) => {
+                Ok(pk.verify(message, sig).is_ok())
+            }
+            (PublicKey::Secp256k1(pk), Signature::Secp256k1(sig)) => {
+                let verifying_key = k256::ecdsa::VerifyingKey::from(pk);
                 Ok(verifying_key.verify(message, sig).is_ok())
-            },
-            _ => Err(ChainCraftError::Crypto(crate::error::CryptoError::InvalidSignature)),
+            }
+            _ => Err(ChaincraftError::Crypto(CryptoError::InvalidSignature)),
         }
     }
 }
@@ -226,7 +225,7 @@ impl PrivateKey {
     /// Create from hex string
     pub fn from_hex(hex_str: &str, key_type: KeyType) -> Result<Self> {
         let bytes = hex::decode(hex_str).map_err(|_| {
-            ChainCraftError::Crypto(crate::error::CryptoError::InvalidPrivateKey {
+            ChaincraftError::Crypto(CryptoError::InvalidPrivateKey {
                 reason: "Invalid hex encoding".to_string(),
             })
         })?;
@@ -234,7 +233,7 @@ impl PrivateKey {
         match key_type {
             KeyType::Ed25519 => {
                 let key_bytes: [u8; 32] = bytes.try_into().map_err(|_| {
-                    ChainCraftError::Crypto(crate::error::CryptoError::InvalidPrivateKey {
+                    ChaincraftError::Crypto(CryptoError::InvalidPrivateKey {
                         reason: "Invalid key length for Ed25519".to_string(),
                     })
                 })?;
@@ -243,7 +242,7 @@ impl PrivateKey {
             },
             KeyType::Secp256k1 => {
                 let key = k256::SecretKey::from_slice(&bytes).map_err(|_| {
-                    ChainCraftError::Crypto(crate::error::CryptoError::InvalidPrivateKey {
+                    ChaincraftError::Crypto(CryptoError::InvalidPrivateKey {
                         reason: "Invalid Secp256k1 key".to_string(),
                     })
                 })?;
@@ -342,19 +341,19 @@ impl Signature {
     /// Create from hex string
     pub fn from_hex(hex_str: &str, sig_type: KeyType) -> Result<Self> {
         let bytes = hex::decode(hex_str)
-            .map_err(|_| ChainCraftError::Crypto(crate::error::CryptoError::InvalidSignature))?;
+            .map_err(|_| ChaincraftError::Crypto(crate::error::CryptoError::InvalidSignature))?;
 
         match sig_type {
             KeyType::Ed25519 => {
                 let sig_bytes: [u8; 64] = bytes.try_into().map_err(|_| {
-                    ChainCraftError::Crypto(crate::error::CryptoError::InvalidSignature)
+                    ChaincraftError::Crypto(crate::error::CryptoError::InvalidSignature)
                 })?;
                 let sig = ed25519_dalek::Signature::from_bytes(&sig_bytes);
                 Ok(Signature::Ed25519(sig))
             },
             KeyType::Secp256k1 => {
                 let sig = k256::ecdsa::Signature::from_slice(&bytes).map_err(|_| {
-                    ChainCraftError::Crypto(crate::error::CryptoError::InvalidSignature)
+                    ChaincraftError::Crypto(crate::error::CryptoError::InvalidSignature)
                 })?;
                 Ok(Signature::Secp256k1(sig))
             },
@@ -453,14 +452,14 @@ pub mod utils {
                 let verifying_key = VerifyingKey::from(pk);
                 Ok(verifying_key.verify(message, sig).is_ok())
             },
-            _ => Err(ChainCraftError::Crypto(CryptoError::InvalidSignature)),
+            _ => Err(ChaincraftError::Crypto(CryptoError::InvalidSignature)),
         }
     }
 }
 
 // Utility functions for ed25519 signatures
 pub mod ed25519_utils {
-    use crate::error::{ChainCraftError, CryptoError, Result};
+    use crate::error::{ChaincraftError, CryptoError, Result};
     use ed25519_dalek::Signature as Ed25519Signature;
 
     // Workaround for signature creation
@@ -476,3 +475,15 @@ pub use ecdsa::EcdsaSignature;
 pub use hash::*;
 pub use pow::ProofOfWork;
 pub use vrf::VerifiableRandomFunction;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::error::{ChaincraftError, CryptoError, Result};
+
+    #[test]
+    fn test_key_generation() -> Result<()> {
+        // ... existing code ...
+        Ok(())
+    }
+}

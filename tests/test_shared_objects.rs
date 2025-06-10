@@ -2,18 +2,18 @@ use chaincraft_rust::{
     network::PeerId,
     shared_object::{ApplicationObject, SimpleSharedNumber},
     storage::MemoryStorage,
-    ChainCraftNode,
+    ChaincraftNode,
 };
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
-async fn create_network(num_nodes: usize) -> Vec<ChainCraftNode> {
+async fn create_network(num_nodes: usize) -> Vec<ChaincraftNode> {
     let mut nodes = Vec::new();
 
     for _ in 0..num_nodes {
         let id = PeerId::new();
         let storage = Arc::new(MemoryStorage::new());
-        let mut node = ChainCraftNode::new(id, storage);
+        let mut node = ChaincraftNode::new(id, storage);
 
         // Add a SimpleSharedNumber object to each node
         let shared_number: Box<dyn ApplicationObject> = Box::new(SimpleSharedNumber::new());
@@ -26,7 +26,7 @@ async fn create_network(num_nodes: usize) -> Vec<ChainCraftNode> {
     nodes
 }
 
-async fn connect_nodes(nodes: &mut [ChainCraftNode]) {
+async fn connect_nodes(nodes: &mut [ChaincraftNode]) {
     let num_nodes = nodes.len();
     for i in 0..num_nodes {
         // Connect each node to the next one in a ring topology

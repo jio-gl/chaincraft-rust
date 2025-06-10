@@ -3,7 +3,7 @@ use chaincraft_rust::{
     network::PeerId,
     shared::{MessageType, SharedMessage},
     storage::MemoryStorage,
-    ChainCraftNode,
+    ChaincraftNode,
 };
 use serde_json::json;
 use std::f64::consts::PI;
@@ -11,7 +11,7 @@ use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
 /// Helper function to connect nodes in a full mesh
-async fn connect_nodes(nodes: &mut [ChainCraftNode]) -> Result<()> {
+async fn connect_nodes(nodes: &mut [ChaincraftNode]) -> Result<()> {
     for i in 0..nodes.len() {
         for j in 0..nodes.len() {
             if i != j {
@@ -26,7 +26,7 @@ async fn connect_nodes(nodes: &mut [ChainCraftNode]) -> Result<()> {
 /// Helper function to wait for message propagation (simplified for testing)
 #[allow(dead_code)]
 async fn wait_for_message_propagation(
-    nodes: &[ChainCraftNode],
+    nodes: &[ChaincraftNode],
     expected_count: usize,
     timeout_secs: u64,
 ) -> bool {
@@ -43,10 +43,10 @@ async fn wait_for_message_propagation(
     false
 }
 
-async fn create_test_node() -> ChainCraftNode {
+async fn create_test_node() -> ChaincraftNode {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
-    let mut node = ChainCraftNode::new(id, storage);
+    let mut node = ChaincraftNode::new(id, storage);
     node.start().await.expect("Failed to start node");
     node
 }
@@ -279,13 +279,13 @@ async fn test_empty_message_data() {
 #[tokio::test]
 async fn test_simple_string_message() -> Result<()> {
     let mut nodes = vec![
-        ChainCraftNode::builder()
+        ChaincraftNode::builder()
             .with_persistent_storage(false)
             .build()?,
-        ChainCraftNode::builder()
+        ChaincraftNode::builder()
             .with_persistent_storage(false)
             .build()?,
-        ChainCraftNode::builder()
+        ChaincraftNode::builder()
             .with_persistent_storage(false)
             .build()?,
     ];
@@ -316,13 +316,13 @@ async fn test_simple_string_message() -> Result<()> {
 #[tokio::test]
 async fn test_simple_integer_message() -> Result<()> {
     let mut nodes = vec![
-        ChainCraftNode::builder()
+        ChaincraftNode::builder()
             .with_persistent_storage(false)
             .build()?,
-        ChainCraftNode::builder()
+        ChaincraftNode::builder()
             .with_persistent_storage(false)
             .build()?,
-        ChainCraftNode::builder()
+        ChaincraftNode::builder()
             .with_persistent_storage(false)
             .build()?,
     ];
@@ -350,13 +350,13 @@ async fn test_simple_integer_message() -> Result<()> {
 #[tokio::test]
 async fn test_json_message() -> Result<()> {
     let mut nodes = vec![
-        ChainCraftNode::builder()
+        ChaincraftNode::builder()
             .with_persistent_storage(false)
             .build()?,
-        ChainCraftNode::builder()
+        ChaincraftNode::builder()
             .with_persistent_storage(false)
             .build()?,
-        ChainCraftNode::builder()
+        ChaincraftNode::builder()
             .with_persistent_storage(false)
             .build()?,
     ];
@@ -394,13 +394,13 @@ async fn test_json_message() -> Result<()> {
 #[tokio::test]
 async fn test_complex_nested_message() -> Result<()> {
     let mut nodes = vec![
-        ChainCraftNode::builder()
+        ChaincraftNode::builder()
             .with_persistent_storage(false)
             .build()?,
-        ChainCraftNode::builder()
+        ChaincraftNode::builder()
             .with_persistent_storage(false)
             .build()?,
-        ChainCraftNode::builder()
+        ChaincraftNode::builder()
             .with_persistent_storage(false)
             .build()?,
     ];

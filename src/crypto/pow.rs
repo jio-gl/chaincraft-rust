@@ -1,7 +1,7 @@
 //! Proof of Work implementation
 
 use crate::crypto::KeylessCryptoPrimitive;
-use crate::error::{ChainCraftError, CryptoError, Result};
+use crate::error::{ChaincraftError, CryptoError, Result};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -223,7 +223,7 @@ impl KeylessCryptoPrimitive for ProofOfWork {
             }
         }
 
-        Err(ChainCraftError::Crypto(CryptoError::ProofOfWorkFailed))
+        Err(ChaincraftError::Crypto(CryptoError::ProofOfWorkFailed))
     }
 
     async fn verify_proof(&self, challenge: Self::Challenge, proof: Self::Proof) -> Result<bool> {
@@ -237,7 +237,7 @@ impl KeylessCryptoPrimitive for ProofOfWork {
             Self::meets_difficulty(&proof.hash, difficulty)
         })
         .await
-        .map_err(|_| ChainCraftError::Generic("Task join error".to_string()))
+        .map_err(|_| ChaincraftError::Generic("Task join error".to_string()))
     }
 }
 

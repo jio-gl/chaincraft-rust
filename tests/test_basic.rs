@@ -1,12 +1,12 @@
-use chaincraft_rust::{error::Result, ChainCraftNode};
+use chaincraft_rust::{error::Result, ChaincraftNode};
 use std::time::{Duration, Instant};
 use tokio::time::sleep;
 
 /// Helper function to create a network of nodes
-async fn create_network(num_nodes: usize, _reset_db: bool) -> Result<Vec<ChainCraftNode>> {
+async fn create_network(num_nodes: usize, _reset_db: bool) -> Result<Vec<ChaincraftNode>> {
     let mut nodes = Vec::new();
     for _ in 0..num_nodes {
-        let node = ChainCraftNode::builder()
+        let node = ChaincraftNode::builder()
             .with_persistent_storage(false)
             .build()?;
         nodes.push(node);
@@ -15,7 +15,7 @@ async fn create_network(num_nodes: usize, _reset_db: bool) -> Result<Vec<ChainCr
 }
 
 /// Helper function to connect nodes randomly
-async fn connect_nodes(nodes: &mut [ChainCraftNode]) -> Result<()> {
+async fn connect_nodes(nodes: &mut [ChaincraftNode]) -> Result<()> {
     use rand::seq::SliceRandom;
     use rand::thread_rng;
 
@@ -47,7 +47,7 @@ async fn connect_nodes(nodes: &mut [ChainCraftNode]) -> Result<()> {
 /// Helper function to wait for message propagation
 #[allow(dead_code)]
 async fn wait_for_propagation(
-    nodes: &[ChainCraftNode],
+    nodes: &[ChaincraftNode],
     expected_count: usize,
     timeout_secs: u64,
 ) -> bool {
@@ -70,7 +70,7 @@ async fn wait_for_propagation(
 #[tokio::test]
 async fn test_node_creation_and_startup() -> Result<()> {
     // Create a node
-    let mut node = ChainCraftNode::new_default().await?;
+    let mut node = ChaincraftNode::new_default();
 
     // Get the node ID and validate it's not empty
     let node_id = node.id().to_string();
@@ -153,7 +153,7 @@ async fn test_object_creation_and_propagation() -> Result<()> {
     assert!(nodes[0].has_object(&message_hash));
     let stored_message = nodes[0].get_object(&message_hash).await?;
     let value: serde_json::Value = serde_json::from_str(&stored_message).map_err(|e| {
-        chaincraft_rust::error::ChainCraftError::Serialization(
+        chaincraft_rust::error::ChaincraftError::Serialization(
             chaincraft_rust::error::SerializationError::Json(e),
         )
     })?;
@@ -233,7 +233,7 @@ async fn test_network_resilience() -> Result<()> {
         .await?;
 
     // Restart failed node
-    let mut restarted_node = ChainCraftNode::builder()
+    let mut restarted_node = ChaincraftNode::builder()
         .with_persistent_storage(false)
         .build()?;
     restarted_node.start().await?;

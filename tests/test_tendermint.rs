@@ -4,17 +4,17 @@ use chaincraft_rust::{
     network::PeerId,
     shared::{MessageType, SharedMessage},
     storage::MemoryStorage,
-    ChainCraftNode,
+    ChaincraftNode,
 };
 use chrono::Utc;
 use serde_json::json;
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
-async fn create_consensus_node() -> Result<ChainCraftNode> {
+async fn create_consensus_node() -> Result<ChaincraftNode> {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
-    let mut node = ChainCraftNode::new(id, storage);
+    let mut node = ChaincraftNode::new(id, storage);
     node.start().await?;
     Ok(node)
 }

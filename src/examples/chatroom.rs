@@ -1,6 +1,6 @@
-//! Chatroom Protocol - A dapp example for ChainCraft
+//! Chatroom Protocol - A dapp example for Chaincraft
 //!
-//! This demonstrates how to build a decentralized application on top of ChainCraft.
+//! This demonstrates how to build a decentralized application on top of Chaincraft.
 //! The chatroom protocol allows:
 //! - Creating chatrooms with admin control
 //! - Requesting to join chatrooms
@@ -9,8 +9,11 @@
 //! - Message validation and signature verification
 
 use crate::{
-    crypto::ecdsa::{ECDSASignature, ECDSAVerifier},
-    error::{ChainCraftError, Result},
+    crypto::{
+        ecdsa::{ECDSASignature, ECDSAVerifier},
+        KeyType, PrivateKey, PublicKey, Signature,
+    },
+    error::{ChaincraftError, Result},
     shared::{MessageType, SharedMessage, SharedObjectId},
     shared_object::ApplicationObject,
 };
@@ -130,16 +133,16 @@ impl ChatroomObject {
         }
 
         let payload = serde_json::to_string(&msg_for_verification).map_err(|e| {
-            ChainCraftError::Serialization(crate::error::SerializationError::Json(e))
+            ChaincraftError::Serialization(crate::error::SerializationError::Json(e))
         })?;
 
         // Decode signature from hex
         let signature_bytes = hex::decode(signature)
-            .map_err(|_| ChainCraftError::validation("Invalid signature hex"))?;
+            .map_err(|_| ChaincraftError::validation("Invalid signature hex"))?;
 
         // Verify signature
         let ecdsa_sig = ECDSASignature::from_bytes(&signature_bytes)
-            .map_err(|_| ChainCraftError::validation("Invalid signature format"))?;
+            .map_err(|_| ChaincraftError::validation("Invalid signature format"))?;
 
         self.verifier
             .verify(payload.as_bytes(), &ecdsa_sig, public_key_pem)
@@ -397,7 +400,7 @@ impl ApplicationObject for ChatroomObject {
     async fn add_message(&mut self, message: SharedMessage) -> Result<()> {
         let msg: ChatroomMessageType =
             serde_json::from_value(message.data.clone()).map_err(|e| {
-                ChainCraftError::Serialization(crate::error::SerializationError::Json(e))
+                ChaincraftError::Serialization(crate::error::SerializationError::Json(e))
             })?;
 
         let processed = match &msg {
@@ -513,7 +516,7 @@ pub mod helpers {
 
         // Sign the message
         let payload = serde_json::to_string(&msg).map_err(|e| {
-            ChainCraftError::Serialization(crate::error::SerializationError::Json(e))
+            ChaincraftError::Serialization(crate::error::SerializationError::Json(e))
         })?;
         let signature = signer.sign(payload.as_bytes())?;
 
@@ -545,7 +548,7 @@ pub mod helpers {
 
         // Sign the message
         let payload = serde_json::to_string(&msg).map_err(|e| {
-            ChainCraftError::Serialization(crate::error::SerializationError::Json(e))
+            ChaincraftError::Serialization(crate::error::SerializationError::Json(e))
         })?;
         let signature = signer.sign(payload.as_bytes())?;
 

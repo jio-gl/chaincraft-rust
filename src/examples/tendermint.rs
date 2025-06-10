@@ -1,6 +1,9 @@
 use crate::{
-    crypto::ecdsa::{ECDSASigner, ECDSAVerifier},
-    error::{ChainCraftError, Result},
+    crypto::{
+        ecdsa::{ECDSASigner, ECDSAVerifier},
+        KeyType, PrivateKey, PublicKey, Signature,
+    },
+    error::{ChaincraftError, Result},
     shared::{MessageType, SharedMessage, SharedObjectId},
     shared_object::ApplicationObject,
 };
@@ -380,7 +383,7 @@ impl ApplicationObject for TendermintObject {
     async fn add_message(&mut self, message: SharedMessage) -> Result<()> {
         let tendermint_msg: TendermintMessageType = serde_json::from_value(message.data.clone())
             .map_err(|e| {
-                ChainCraftError::Serialization(crate::error::SerializationError::Json(e))
+                ChaincraftError::Serialization(crate::error::SerializationError::Json(e))
             })?;
 
         let processed = match &tendermint_msg {
@@ -523,7 +526,7 @@ pub mod helpers {
     ) -> Result<serde_json::Value> {
         let validator_msg = TendermintMessageType::ValidatorSet { validators, height };
         serde_json::to_value(validator_msg)
-            .map_err(|e| ChainCraftError::Serialization(crate::error::SerializationError::Json(e)))
+            .map_err(|e| ChaincraftError::Serialization(crate::error::SerializationError::Json(e)))
     }
 
     pub fn create_proposal_message(
@@ -546,7 +549,7 @@ pub mod helpers {
         };
 
         serde_json::to_value(proposal)
-            .map_err(|e| ChainCraftError::Serialization(crate::error::SerializationError::Json(e)))
+            .map_err(|e| ChaincraftError::Serialization(crate::error::SerializationError::Json(e)))
     }
 
     pub fn create_prevote_message(
@@ -568,7 +571,7 @@ pub mod helpers {
         };
 
         serde_json::to_value(prevote)
-            .map_err(|e| ChainCraftError::Serialization(crate::error::SerializationError::Json(e)))
+            .map_err(|e| ChaincraftError::Serialization(crate::error::SerializationError::Json(e)))
     }
 
     pub fn create_precommit_message(
@@ -590,6 +593,6 @@ pub mod helpers {
         };
 
         serde_json::to_value(precommit)
-            .map_err(|e| ChainCraftError::Serialization(crate::error::SerializationError::Json(e)))
+            .map_err(|e| ChaincraftError::Serialization(crate::error::SerializationError::Json(e)))
     }
 }
