@@ -1,7 +1,6 @@
 use anyhow::Result;
 use chaincraft_rust::{
     crypto::ecdsa::{ECDSASigner, ECDSAVerifier},
-    error::ChainCraftError,
     network::PeerId,
     shared::{MessageType, SharedMessage},
     storage::MemoryStorage,
@@ -281,7 +280,7 @@ async fn test_network_partition_recovery() -> Result<()> {
     node1.close().await?;
     node2.close().await?;
 
-    assert!(true); // Test passes if partition recovery simulated
+    // Test passes if partition recovery simulated
     Ok(())
 }
 
@@ -315,7 +314,7 @@ async fn test_consensus_timeout_handling() -> Result<()> {
 
     node.close().await?;
 
-    assert!(true); // Test passes if timeout handling works
+    // Test passes if timeout handling works
     Ok(())
 }
 
@@ -347,7 +346,7 @@ async fn test_validator_set_changes() -> Result<()> {
 
     node.close().await?;
 
-    assert!(true); // Test passes if validator set changes handled
+    // Test passes if validator set changes handled
     Ok(())
 }
 
@@ -380,7 +379,7 @@ async fn test_block_finality() -> Result<()> {
 
     node.close().await?;
 
-    assert!(true); // Test passes if finality maintained
+    // Test passes if finality maintained
     Ok(())
 }
 
@@ -416,7 +415,7 @@ async fn test_state_machine_replication() -> Result<()> {
 
     node.close().await?;
 
-    assert!(true); // Test passes if state machine replication works
+    // Test passes if state machine replication works
     Ok(())
 }
 

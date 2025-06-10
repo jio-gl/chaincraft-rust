@@ -55,6 +55,18 @@ impl ChainCraftNode {
         }
     }
 
+    /// Create a new ChainCraft node with default settings
+    pub async fn new_default() -> Result<Self> {
+        let storage = Arc::new(crate::storage::MemoryStorage::new());
+        let id = PeerId::new();
+        Ok(Self::new(id, storage))
+    }
+
+    /// Create a new ChainCraft node with default settings (alias for compatibility with examples)
+    pub async fn new_with_defaults() -> Result<Self> {
+        Self::new_default().await
+    }
+
     /// Create a builder for this node
     pub fn builder() -> ChainCraftNodeBuilder {
         ChainCraftNodeBuilder::new()

@@ -110,8 +110,7 @@ async fn test_memory_usage_stability() {
         sleep(Duration::from_millis(10)).await;
     }
 
-    // Test passes if no memory issues (OOM, etc.)
-    assert!(true);
+    // No assertions needed for performance test
 
     node.close().await.unwrap();
 }

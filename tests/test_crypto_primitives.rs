@@ -28,7 +28,7 @@ async fn test_basic_crypto_placeholder() -> Result<()> {
     // before we can test the full crypto functionality
 
     println!("Crypto primitives test placeholder - TODO: implement full crypto tests");
-    assert!(true);
+    // This test passes by not throwing exceptions
 
     Ok(())
 }

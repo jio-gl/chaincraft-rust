@@ -1,18 +1,13 @@
 use anyhow::Result;
 use chaincraft_rust::{
-    error::ChainCraftError,
     network::PeerId,
     shared::{MessageType, SharedMessage},
     storage::MemoryStorage,
     ChainCraftNode,
-    node::MessageType as NodeMessageType,
-    network::Message,
-    types::SharedObjectId,
 };
 use serde_json::json;
-use std::sync::Arc;
 use std::f64::consts::PI;
-use std::str::FromStr;
+use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
 /// Helper function to connect nodes in a full mesh
@@ -521,7 +516,7 @@ async fn test_numeric_messages() {
         .await
         .unwrap();
     let float_id = node
-        .create_shared_message_with_data(json!(3.14159))
+        .create_shared_message_with_data(json!(PI))
         .await
         .unwrap();
     let zero_id = node
@@ -571,14 +566,36 @@ async fn test_shared_object_id_variants() -> Result<(), Box<dyn std::error::Erro
     let mut node1 = create_test_node().await;
     let mut node2 = create_test_node().await;
 
+    // Test numeric message types
+    let int_id = node1
+        .create_shared_message_with_data(json!(42))
+        .await
+        .unwrap();
+
+    let negative_id = node1
+        .create_shared_message_with_data(json!(-123))
+        .await
+        .unwrap();
+
     // Use PI constant instead of approximation
-    let float_result = node1
+    let float_id = node1
         .create_shared_message_with_data(json!(PI))
         .await
         .unwrap();
 
-    // Use array instead of vec!
-    let ids = [int_id, negative_id, float_id, zero_id];
+    let zero_id = node1
+        .create_shared_message_with_data(json!(0))
+        .await
+        .unwrap();
+
+    // All IDs should be unique
+    let ids = [&int_id, &negative_id, &float_id, &zero_id];
+    let unique_ids: std::collections::HashSet<_> = ids.iter().collect();
+    assert_eq!(unique_ids.len(), 4);
+
+    // Clean up nodes
+    node1.close().await?;
+    node2.close().await?;
 
     Ok(())
 }

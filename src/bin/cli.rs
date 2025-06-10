@@ -2,11 +2,7 @@
 
 use chaincraft_rust::{ChainCraftNode, Result};
 use clap::{Parser, Subcommand};
-use std::path::PathBuf;
-use std::process;
-use tokio::time::Duration;
-use tracing::{info, warn, error, Level};
-use tracing_subscriber;
+use tracing::{info, Level};
 
 #[derive(Parser)]
 #[command(name = "chaincraft-cli")]
@@ -33,7 +29,7 @@ struct Cli {
     memory: bool,
 
     /// Set verbosity level (0-4)
-    #[arg(short, long, default_value_t = 2)]
+    #[arg(short = 'v', long, default_value_t = 2)]
     verbosity: u8,
 }
 
@@ -52,16 +48,24 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
 
     // Initialize logging
-    let level = if cli.debug { Level::DEBUG } else { Level::INFO };
+    let level = match cli.verbosity {
+        0 => Level::ERROR,
+        1 => Level::WARN,
+        2 => Level::INFO,
+        3 => Level::DEBUG,
+        _ => Level::TRACE,
+    };
+
     tracing_subscriber::fmt().with_max_level(level).init();
 
-    match cli.command {
+    match &cli.command {
         Some(Commands::Start) | None => {
             info!("Starting ChainCraft node on port {}", cli.port);
 
             let mut node = ChainCraftNode::builder()
                 .port(cli.port)
                 .max_peers(cli.max_peers)
+                .with_persistent_storage(!cli.memory)
                 .build()?;
 
             info!("Node {} started on port {}", node.id(), node.port());
