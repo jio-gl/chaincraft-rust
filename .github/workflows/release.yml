@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*'
+  release:
+    types: [created, edited]
 
 jobs:
   build-and-publish:
@@ -148,6 +150,7 @@ jobs:
     name: Create GitHub Release
     runs-on: ubuntu-latest
     needs: build-binaries
+    if: github.event_name == 'push'  # Only create release when triggered by tag push
     steps:
       - uses: actions/checkout@v3
       
