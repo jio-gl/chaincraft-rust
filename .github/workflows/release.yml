@@ -19,6 +19,11 @@ jobs:
           toolchain: 1.82.0  # Use at least 1.82.0 to handle icu_collections dependency
           override: true
       
+      - name: Install OpenSSL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libssl-dev pkg-config
+      
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
@@ -77,12 +82,15 @@ jobs:
           - os: ubuntu-latest
             artifact_name: chaincraft-rust-linux
             asset_name: chaincraft-rust-linux.tar.gz
+            features: --all-features
           - os: macos-latest
             artifact_name: chaincraft-rust-macos
             asset_name: chaincraft-rust-macos.tar.gz
+            features: --all-features
           - os: windows-latest
             artifact_name: chaincraft-rust-windows
             asset_name: chaincraft-rust-windows.zip
+            features: --no-default-features --features compression
     
     steps:
       - uses: actions/checkout@v3
@@ -100,11 +108,25 @@ jobs:
           echo "MacOS architecture: $(uname -m)"
           echo "Rust target: $(rustc -vV | grep host)"
       
+      - name: Install OpenSSL (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libssl-dev pkg-config
+      
+      - name: Install OpenSSL (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install openssl@3
+          echo "OPENSSL_ROOT_DIR=$(brew --prefix openssl@3)" >> $GITHUB_ENV
+          echo "OPENSSL_LIB_DIR=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
+          echo "OPENSSL_INCLUDE_DIR=$(brew --prefix openssl@3)/include" >> $GITHUB_ENV
+      
       - name: Build binary
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release
+          args: --release ${{ matrix.features }}
       
       - name: Package binary (Unix)
         if: matrix.os != 'windows-latest'
