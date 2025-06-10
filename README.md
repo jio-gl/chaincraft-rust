@@ -255,9 +255,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Roadmap
 
+- [X] Advanced consensus mechanisms (PBFT)
 - [ ] Smart contract support
-- [ ] Advanced consensus mechanisms (PBFT, HotStuff)
-- [ ] Cross-chain interoperability
 - [ ] Enhanced monitoring and metrics
 - [ ] WebAssembly runtime integration
 
