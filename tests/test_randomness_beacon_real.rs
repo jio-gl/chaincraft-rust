@@ -9,7 +9,6 @@ use chaincraft_rust::{
     storage::MemoryStorage,
     ChainCraftNode,
 };
-use serde_json::json;
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
@@ -97,10 +96,10 @@ async fn test_vrf_proof_generation() {
 #[tokio::test]
 async fn test_vrf_proof_processing() {
     let (mut node, mut beacon) = create_beacon_node().await;
-    let signer = ECDSASigner::new().unwrap();
+    let _signer = ECDSASigner::new().unwrap();
 
     // Register a validator
-    let validator_addr = signer.get_public_key_pem().unwrap();
+    let validator_addr = _signer.get_public_key_pem().unwrap();
     let validator = BeaconValidator {
         address: validator_addr.clone(),
         public_key: "pubkey1".to_string(),
@@ -135,10 +134,10 @@ async fn test_vrf_proof_processing() {
 #[tokio::test]
 async fn test_partial_signature_processing() {
     let (mut node, mut beacon) = create_beacon_node().await;
-    let signer = ECDSASigner::new().unwrap();
+    let _signer = ECDSASigner::new().unwrap();
 
     // Register a validator
-    let validator_addr = signer.get_public_key_pem().unwrap();
+    let validator_addr = _signer.get_public_key_pem().unwrap();
     let validator = BeaconValidator {
         address: validator_addr.clone(),
         public_key: "pubkey1".to_string(),
@@ -307,8 +306,8 @@ async fn test_randomness_history() {
 
 #[tokio::test]
 async fn test_message_integration_with_node() {
-    let (mut node, _) = create_beacon_node().await;
-    let signer = ECDSASigner::new().unwrap();
+    let (mut node, _beacon) = create_beacon_node().await;
+    let _signer = ECDSASigner::new().unwrap();
 
     // Create validator registration message and send to node
     let reg_msg = BeaconMessageType::ValidatorRegistration {
@@ -451,7 +450,7 @@ async fn test_round_time_advance() {
     assert!(!beacon.should_advance_round());
 
     // Test with very short duration
-    let mut short_beacon = RandomnessBeaconObject::new(1, 2).unwrap(); // 1 second rounds
+    let short_beacon = RandomnessBeaconObject::new(1, 2).unwrap(); // 1 second rounds
     sleep(Duration::from_millis(1100)).await; // Wait > 1 second
 
     // Now should advance
@@ -463,7 +462,7 @@ async fn test_round_time_advance() {
 #[tokio::test]
 async fn test_beacon_helper_functions() -> Result<()> {
     let (mut node, beacon) = create_beacon_node().await;
-    let signer = ECDSASigner::new()?;
+    let _signer = ECDSASigner::new()?;
 
     // Test beacon message creation
     let message = helpers::create_vrf_proof_message(
@@ -472,13 +471,13 @@ async fn test_beacon_helper_functions() -> Result<()> {
         "test_proof".to_string(),
         "test_output".to_string(),
         "validator1".to_string(),
-        &signer,
+        &_signer,
     )?;
 
     // Sign and verify message
-    let signature = signer.sign(message.to_string().as_bytes())?;
+    let signature = _signer.sign(message.to_string().as_bytes())?;
     let verifier = ECDSAVerifier::new();
-    let public_key_pem = signer.get_public_key_pem()?;
+    let public_key_pem = _signer.get_public_key_pem()?;
     assert!(verifier.verify(message.to_string().as_bytes(), &signature, &public_key_pem)?);
 
     node.close().await?;

@@ -8,6 +8,7 @@ async fn create_node() -> ChainCraftNode {
     ChainCraftNode::new(id, storage)
 }
 
+#[allow(dead_code)]
 async fn wait_for_propagation(
     nodes: &[ChainCraftNode],
     expected_count: usize,
@@ -72,12 +73,12 @@ async fn test_two_nodes_one_connection() {
     sleep(Duration::from_secs(2)).await;
 
     // Both nodes should see each other
-    let node1_peers = node1.get_peers().await;
+    let _node1_peers = node1.get_peers().await;
     let node2_peers = node2.get_peers().await;
 
     // At minimum, we should have established the connection
     // In a full implementation, discovery would propagate both ways
-    assert!(node2_peers.len() >= 1);
+    assert!(!node2_peers.is_empty());
 
     node1.close().await.unwrap();
     node2.close().await.unwrap();
@@ -121,8 +122,8 @@ async fn test_three_nodes_discovery() {
     println!("Node3 peers: {}", node3_peers.len());
 
     // Each node should have at least their direct connections
-    assert!(node2_peers.len() >= 1); // Connected to node1
-    assert!(node3_peers.len() >= 1); // Connected to node2
+    assert!(!node2_peers.is_empty()); // Connected to node1
+    assert!(!node3_peers.is_empty()); // Connected to node2
 
     node1.close().await.unwrap();
     node2.close().await.unwrap();
@@ -194,8 +195,8 @@ async fn test_max_peers_limit() {
     let mut total_connections = 0;
 
     // Count node1's peers
-    let node1_peer_count = node1.get_peers().await.len();
-    total_connections += node1_peer_count;
+    let _node1_peers = node1.get_peers().await;
+    total_connections += _node1_peers.len();
 
     // Count connections from connecting nodes
     for node in &connecting_nodes {
@@ -203,7 +204,7 @@ async fn test_max_peers_limit() {
         total_connections += peer_count;
     }
 
-    println!("Node1 has {} peers (max: {})", node1_peer_count, max_peers);
+    println!("Node1 has {} peers (max: {})", _node1_peers.len(), max_peers);
     println!("Total connections in network: {}", total_connections);
 
     // In our simplified implementation, connections are directional
@@ -237,7 +238,7 @@ async fn test_peer_connection_management() {
 
     // Check connections were established
     let node2_peers = node2.get_peers().await;
-    assert!(node2_peers.len() > 0);
+    assert!(!node2_peers.is_empty());
 
     // Test node properties
     assert!(node1.is_running_async().await);

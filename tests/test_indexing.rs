@@ -40,7 +40,7 @@ async fn test_index_user_messages() {
     sleep(Duration::from_millis(100)).await;
 
     // Test passes if no errors occur during message creation
-    assert!(true);
+    // assert!(true);
 
     node.close().await.unwrap();
 }
@@ -65,7 +65,7 @@ async fn test_index_post_messages() {
     sleep(Duration::from_millis(100)).await;
 
     // Test passes if no errors occur during message creation
-    assert!(true);
+    // assert!(true);
 
     node.close().await.unwrap();
 }
@@ -92,7 +92,7 @@ async fn test_query_messages_by_type() {
     sleep(Duration::from_millis(100)).await;
 
     // Test passes if all messages are created without errors
-    assert!(true);
+    // assert!(true);
 
     node.close().await.unwrap();
 }
@@ -124,7 +124,7 @@ async fn test_complex_message_indexing() {
     sleep(Duration::from_millis(100)).await;
 
     // Test passes if complex message is created without errors
-    assert!(true);
+    // assert!(true);
 
     node.close().await.unwrap();
 }
@@ -148,7 +148,7 @@ async fn test_timestamp_indexing() {
     sleep(Duration::from_millis(100)).await;
 
     // Test passes if all timed messages are created without errors
-    assert!(true);
+    // assert!(true);
 
     node.close().await.unwrap();
 }
