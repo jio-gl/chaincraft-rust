@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_UNSTABLE_EDITION2024: true
+  RUSTUP_TOOLCHAIN: nightly
 
 jobs:
   test:
@@ -16,19 +17,24 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        rust: [nightly, 1.82.0]
       fail-fast: false
 
     steps:
     - uses: actions/checkout@v3
     
-    - name: Setup Rust
+    - name: Install latest nightly
       uses: actions-rs/toolchain@v1
       with:
-        profile: minimal
-        toolchain: ${{ matrix.rust }}
+        toolchain: nightly
         override: true
         components: rustfmt, clippy
+    
+    - name: Install latest Cargo
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        rustup update
+        rustup default nightly
+        cargo --version
     
     - name: Cache dependencies
       uses: actions/cache@v3
@@ -70,6 +76,8 @@ jobs:
     - name: Build (Unix)
       if: matrix.os != 'windows-latest'
       uses: actions-rs/cargo@v1
+      env:
+        CARGO_TERM_COLOR: always
       with:
         command: build
         args: --all-features
