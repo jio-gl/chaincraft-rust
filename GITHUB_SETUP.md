@@ -2,6 +2,13 @@
 
 This document outlines the steps needed to properly configure the GitHub repository for the ChainCraft Rust project.
 
+## Current Workflow Files
+
+The repository contains two GitHub Actions workflow files:
+
+1. **ci.yml** - Continuous Integration workflow that runs tests, linting, and other checks on each push and pull request.
+2. **release.yml** - Release workflow that is triggered by tag pushes (v*) to build and publish releases.
+
 ## Branch Protection Rules
 
 Set up branch protection for the `main` branch:
@@ -43,6 +50,18 @@ To enable GitHub Pages for documentation:
 1. Go to Settings > Pages
 2. Under "Source", select "GitHub Actions" 
 3. This allows the CI pipeline to deploy docs through the workflow
+
+## Verifying Workflows
+
+To verify that your workflows are properly configured and running:
+
+1. Check the GitHub Actions tab: https://github.com/jio-gl/chaincraft-rust/actions
+2. You should see the CI workflow running on each push to the repository
+3. When you push a tag (e.g., `v0.1.0`), the release workflow should be triggered automatically
+4. If workflows aren't running, check that:
+   - The workflow files are in the correct location (.github/workflows/)
+   - The workflow syntax is valid
+   - The repository has appropriate permissions to run workflows
 
 ## Future Organization Transfer
 

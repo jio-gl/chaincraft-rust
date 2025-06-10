@@ -2,6 +2,24 @@
 
 This document provides steps to verify a successful release of the ChainCraft Rust project.
 
+## GitHub Actions Workflow Verification
+
+1. After pushing a tag (e.g., `git push origin v0.1.0`), visit the GitHub Actions tab:
+   https://github.com/jio-gl/chaincraft-rust/actions
+
+2. You should see the release workflow triggered by the tag push
+   - Verify that all jobs in the workflow complete successfully
+   - Look for any failed steps and their error messages
+   - If there are failures, check the workflow logs for details
+
+3. The release workflow should include these successful steps:
+   - Running tests
+   - Verifying version matches between tag and Cargo.toml
+   - Building documentation
+   - Publishing to crates.io (if CARGO_REGISTRY_TOKEN is set)
+   - Building binaries for multiple platforms
+   - Creating a GitHub release with assets
+
 ## GitHub Release Verification
 
 1. Check the GitHub repository releases page:
@@ -58,6 +76,26 @@ This document provides steps to verify a successful release of the ChainCraft Ru
    - Build and test workflow
    - Release workflow
    - Documentation deployment
+
+## If the Release Failed
+
+If the release process fails, follow these steps to diagnose and fix:
+
+1. Check the workflow logs for specific error messages
+2. Common issues include:
+   - Missing CARGO_REGISTRY_TOKEN secret
+   - Version mismatch between tag and Cargo.toml
+   - Test failures
+   - Build failures for specific platforms
+
+3. After fixing the issue:
+   - If needed, delete the failed GitHub release
+   - Delete the tag locally and remotely:
+     ```bash
+     git tag -d v0.1.0
+     git push --delete origin v0.1.0
+     ```
+   - Fix the issue, then create and push the tag again
 
 ## Post-Release Steps
 
