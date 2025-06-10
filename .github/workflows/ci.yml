@@ -13,7 +13,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        rust: [stable, 1.70.0]
+        rust: [stable, 1.82.0]
+      fail-fast: false
 
     steps:
     - uses: actions/checkout@v3
@@ -57,6 +58,33 @@ jobs:
       uses: actions-rs/audit-check@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+
+  compatibility:
+    name: Compatibility check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Rust MSRV
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: 1.70.0
+        override: true
+        components: clippy
+    
+    - name: Add MSRV specific dependencies
+      run: |
+        cargo update -p icu_collections --precise 1.0.0
+        cargo update -p icu_provider --precise 1.0.0
+        cargo update -p icu_normalizer --precise 1.0.0
+        cargo update -p icu_properties --precise 1.0.0
+    
+    - name: Build with MSRV
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --all-features
 
   docs:
     name: Build docs
