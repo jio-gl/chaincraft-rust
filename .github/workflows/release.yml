@@ -101,93 +101,10 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       
-  build-binaries:
-    name: Build binaries for ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    needs: build-and-publish
-    permissions:
-      contents: write
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            artifact_name: chaincraft-rust-linux
-            asset_name: chaincraft-rust-linux.tar.gz
-            features: --all-features
-          - os: macos-latest
-            artifact_name: chaincraft-rust-macos
-            asset_name: chaincraft-rust-macos.tar.gz
-            features: --all-features
-          - os: windows-latest
-            artifact_name: chaincraft-rust-windows
-            asset_name: chaincraft-rust-windows.zip
-            features: --no-default-features --features compression
-    
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.release.tag_name || github.ref }}
-      
-      - name: Setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly
-          override: true
-          components: rustfmt, clippy
-      
-      - name: Install latest Cargo
-        run: |
-          rustup update
-          rustup default nightly
-          cargo --version
-      
-      - name: Check MacOS architecture
-        if: matrix.os == 'macos-latest'
-        run: |
-          echo "MacOS architecture: $(uname -m)"
-          echo "Rust target: $(rustc -vV | grep host)"
-      
-      - name: Install OpenSSL (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libssl-dev pkg-config
-      
-      - name: Install OpenSSL (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          brew install openssl@3
-          echo "OPENSSL_ROOT_DIR=$(brew --prefix openssl@3)" >> $GITHUB_ENV
-          echo "OPENSSL_LIB_DIR=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
-          echo "OPENSSL_INCLUDE_DIR=$(brew --prefix openssl@3)/include" >> $GITHUB_ENV
-      
-      - name: Build binary
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release ${{ matrix.features }}
-      
-      - name: Package binary (Unix)
-        if: matrix.os != 'windows-latest'
-        run: |
-          tar -czf ${{ matrix.asset_name }} -C target/release chaincraft-rust
-      
-      - name: Package binary (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          powershell Compress-Archive -Path target/release/chaincraft-rust.exe -DestinationPath ${{ matrix.asset_name }}
-      
-      - name: Upload binaries to release
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.artifact_name }}
-          path: ${{ matrix.asset_name }}
-      
   create-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
-    needs: build-binaries
+    needs: build-and-publish
     permissions:
       contents: write
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
@@ -196,19 +113,12 @@ jobs:
         with:
           ref: ${{ github.event.release.tag_name || github.ref }}
       
-      - name: Download all artifacts
-        uses: actions/download-artifact@v3
-      
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
           draft: false
           prerelease: false
-          files: |
-            chaincraft-rust-linux/chaincraft-rust-linux.tar.gz
-            chaincraft-rust-macos/chaincraft-rust-macos.tar.gz
-            chaincraft-rust-windows/chaincraft-rust-windows.zip
           body_path: CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
