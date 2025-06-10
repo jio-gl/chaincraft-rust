@@ -1,0 +1,74 @@
+# Rustfmt configuration for ChainCraft Rust
+
+# Use verbose diffs
+verbose_diff = true
+
+# Edition 2021
+edition = "2021"
+
+# Maximum width of each line
+max_width = 100
+
+# Maximum width of the args of a function call before falling back to vertical formatting
+fn_call_width = 80
+
+# Maximum width of a struct definition before falling back to vertical formatting
+struct_def_width = 60
+
+# Maximum width of the array elements before falling back to vertical formatting
+array_width = 80
+
+# Combine control expressions with function calls
+combine_control_expr = true
+
+# Format string literals where necessary
+format_strings = true
+
+# Use field init shorthand if possible
+use_field_init_shorthand = true
+
+# Use small heuristics to determine parameter layout
+fn_single_line = true
+
+# Format macro invocations
+format_macro_matchers = true
+format_macro_bodies = true
+
+# Merge multiple imports into a single line
+merge_imports = true
+
+# Use tab stops for alignment
+use_tab_to_align_comments = false
+
+# Normalize comments
+normalize_comments = true
+
+# Normalize doc comments
+normalize_doc_attributes = true
+
+# Remove nested parens
+remove_nested_parens = true
+
+# Reorder impl items
+reorder_impl_items = true
+
+# Add trailing commas
+trailing_comma = "Vertical"
+
+# Match block trailing comma
+match_block_trailing_comma = true
+
+# Format generated files
+format_generated_files = true
+
+# Newlines style
+newline_style = "Unix"
+
+# Force explicit types
+force_explicit_abi = true
+
+# Group imports
+group_imports = "StdExternalCrate"
+
+# Imports granularity
+imports_granularity = "Crate" 

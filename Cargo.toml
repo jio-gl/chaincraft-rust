@@ -1,0 +1,115 @@
+[package]
+name = "chaincraft-rust"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+authors = ["ChainCraft Contributors"]
+license = "MIT"
+description = "A high-performance Rust-based platform for blockchain education and prototyping"
+readme = "README.md"
+homepage = "https://github.com/chaincraft-org/chaincraft-rust"
+repository = "https://github.com/chaincraft-org/chaincraft-rust"
+documentation = "https://docs.rs/chaincraft-rust"
+keywords = ["blockchain", "education", "prototyping", "distributed", "consensus"]
+categories = ["network-programming", "cryptography", "science"]
+include = [
+    "src/**/*",
+    "tests/**/*",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE*",
+]
+
+[lib]
+name = "chaincraft_rust"
+path = "src/lib.rs"
+
+[[bin]]
+name = "chaincraft-cli"
+path = "src/bin/cli.rs"
+
+[dependencies]
+# Async runtime and networking
+tokio = { version = "1.35", features = ["full"] }
+tokio-util = "0.7"
+async-trait = "0.1"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+bincode = "1.3"
+bytes = { version = "1.0", features = ["serde"] }
+serde_bytes = "0.11"
+
+# Networking
+socket2 = "0.5"
+libp2p = "0.53"
+
+# Cryptography
+sha2 = "0.10"
+sha3 = "0.10"
+blake3 = "1.5"
+ring = "0.17"
+ed25519-dalek = { version = "2.0", features = ["serde"] }
+k256 = { version = "0.13", features = ["serde", "ecdsa"] }
+rand = "0.8"
+rand_core = "0.6"
+hex = "0.4"
+
+# Data structures
+indexmap = "2.0"
+dashmap = "5.5"
+sled = { version = "0.34", optional = true }
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite", "chrono", "uuid"], optional = true }
+
+# Utilities
+thiserror = "1.0"
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+uuid = { version = "1.6", features = ["v4", "serde"] }
+futures = "0.3"
+lru = "0.12"
+num_cpus = "1.0"
+
+# CLI
+clap = { version = "4.4", features = ["derive"] }
+rpassword = "7.3"
+
+# Compression
+flate2 = "1.0"
+
+# Encoding
+base64 = "0.21"
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# VDF implementation
+vdf = { version = "0.1", optional = true }
+
+# VRF (placeholders)
+vrf = "0.2"
+
+[dev-dependencies]
+tokio-test = "0.4"
+criterion = "0.5"
+proptest = "1.4"
+tempfile = "3.8"
+
+[features]
+default = ["compression"]
+persistent = ["dep:sled"]
+indexing = ["dep:sqlx"]
+compression = []
+vdf-crypto = ["dep:vdf"]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.dev]
+opt-level = 0
+debug = true

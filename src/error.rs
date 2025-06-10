@@ -1,0 +1,216 @@
+//! Error types for the ChainCraft library
+
+use std::net::SocketAddr;
+use thiserror::Error;
+
+/// Result type alias for ChainCraft operations
+pub type Result<T> = std::result::Result<T, ChainCraftError>;
+
+/// Main error type for ChainCraft operations
+#[derive(Error, Debug)]
+pub enum ChainCraftError {
+    /// Network-related errors
+    #[error("Network error: {0}")]
+    Network(#[from] NetworkError),
+
+    /// Cryptographic errors
+    #[error("Cryptographic error: {0}")]
+    Crypto(#[from] CryptoError),
+
+    /// Storage-related errors
+    #[error("Storage error: {0}")]
+    Storage(#[from] StorageError),
+
+    /// Serialization errors
+    #[error("Serialization error: {0}")]
+    Serialization(#[from] SerializationError),
+
+    /// Validation errors
+    #[error("Validation error: {0}")]
+    Validation(String),
+
+    /// Consensus-related errors
+    #[error("Consensus error: {0}")]
+    Consensus(String),
+
+    /// Configuration errors
+    #[error("Configuration error: {0}")]
+    Config(String),
+
+    /// Generic IO errors
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+
+    /// Generic errors with message
+    #[error("{0}")]
+    Generic(String),
+}
+
+/// Network-specific error types
+#[derive(Error, Debug)]
+pub enum NetworkError {
+    /// Failed to bind to socket
+    #[error("Failed to bind to {addr}: {source}")]
+    BindFailed {
+        addr: SocketAddr,
+        source: std::io::Error,
+    },
+
+    /// Failed to connect to peer
+    #[error("Failed to connect to {addr}: {source}")]
+    ConnectionFailed {
+        addr: SocketAddr,
+        source: std::io::Error,
+    },
+
+    /// Peer is banned
+    #[error("Peer {addr} is banned until {expires_at}")]
+    PeerBanned {
+        addr: SocketAddr,
+        expires_at: chrono::DateTime<chrono::Utc>,
+    },
+
+    /// Message too large
+    #[error("Message size {size} exceeds maximum {max_size}")]
+    MessageTooLarge { size: usize, max_size: usize },
+
+    /// Invalid message format
+    #[error("Invalid message format: {reason}")]
+    InvalidMessage { reason: String },
+
+    /// Timeout occurred
+    #[error("Operation timed out after {duration:?}")]
+    Timeout { duration: std::time::Duration },
+
+    /// No peers available
+    #[error("No peers available for operation")]
+    NoPeersAvailable,
+}
+
+/// Cryptographic error types
+#[derive(Error, Debug)]
+pub enum CryptoError {
+    /// Invalid signature
+    #[error("Invalid signature")]
+    InvalidSignature,
+
+    /// Invalid public key
+    #[error("Invalid public key: {reason}")]
+    InvalidPublicKey { reason: String },
+
+    /// Invalid private key
+    #[error("Invalid private key: {reason}")]
+    InvalidPrivateKey { reason: String },
+
+    /// Hash verification failed
+    #[error("Hash verification failed")]
+    HashVerificationFailed,
+
+    /// Proof of work verification failed
+    #[error("Proof of work verification failed")]
+    ProofOfWorkFailed,
+
+    /// VRF verification failed
+    #[error("VRF verification failed")]
+    VrfVerificationFailed,
+
+    /// VDF verification failed
+    #[error("VDF verification failed")]
+    VdfVerificationFailed,
+
+    /// Key generation failed
+    #[error("Key generation failed: {reason}")]
+    KeyGenerationFailed { reason: String },
+
+    /// Encryption failed
+    #[error("Encryption failed: {reason}")]
+    EncryptionFailed { reason: String },
+
+    /// Decryption failed
+    #[error("Decryption failed: {reason}")]
+    DecryptionFailed { reason: String },
+}
+
+/// Storage-related error types
+#[derive(Error, Debug)]
+pub enum StorageError {
+    /// Database operation failed
+    #[error("Database operation failed: {reason}")]
+    DatabaseOperation { reason: String },
+
+    /// Key not found
+    #[error("Key not found: {key}")]
+    KeyNotFound { key: String },
+
+    /// Serialization failed
+    #[error("Failed to serialize data: {reason}")]
+    SerializationFailed { reason: String },
+
+    /// Deserialization failed
+    #[error("Failed to deserialize data: {reason}")]
+    DeserializationFailed { reason: String },
+
+    /// Database corruption detected
+    #[error("Database corruption detected: {reason}")]
+    Corruption { reason: String },
+
+    /// Database is read-only
+    #[error("Attempted to write to read-only database")]
+    ReadOnly,
+
+    /// Transaction failed
+    #[error("Transaction failed: {reason}")]
+    TransactionFailed { reason: String },
+}
+
+/// Serialization error types
+#[derive(Error, Debug)]
+pub enum SerializationError {
+    /// JSON serialization error
+    #[error("JSON error: {0}")]
+    Json(#[from] serde_json::Error),
+
+    /// Binary serialization error
+    #[error("Binary serialization error: {0}")]
+    Binary(#[from] bincode::Error),
+
+    /// Invalid message format
+    #[error("Invalid message format: expected {expected}, got {actual}")]
+    InvalidFormat { expected: String, actual: String },
+
+    /// Missing required field
+    #[error("Missing required field: {field}")]
+    MissingField { field: String },
+
+    /// Field validation failed
+    #[error("Field validation failed for {field}: {reason}")]
+    FieldValidation { field: String, reason: String },
+}
+
+impl ChainCraftError {
+    /// Create a validation error
+    pub fn validation<S: Into<String>>(msg: S) -> Self {
+        ChainCraftError::Validation(msg.into())
+    }
+
+    /// Create a consensus error
+    pub fn consensus<S: Into<String>>(msg: S) -> Self {
+        ChainCraftError::Consensus(msg.into())
+    }
+
+    /// Create a configuration error
+    pub fn config<S: Into<String>>(msg: S) -> Self {
+        ChainCraftError::Config(msg.into())
+    }
+
+    /// Create a generic error
+    pub fn generic<S: Into<String>>(msg: S) -> Self {
+        ChainCraftError::Generic(msg.into())
+    }
+}
+
+impl From<serde_json::Error> for ChainCraftError {
+    fn from(err: serde_json::Error) -> Self {
+        ChainCraftError::Serialization(SerializationError::Json(err))
+    }
+}
