@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        rust: [stable, 1.82.0]
+        rust: [nightly, 1.82.0]
       fail-fast: false
 
     steps:
@@ -105,7 +105,7 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         profile: minimal
-        toolchain: 1.70.0
+        toolchain: nightly
         override: true
         components: clippy
     
@@ -125,7 +125,7 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         profile: minimal
-        toolchain: stable
+        toolchain: nightly
         override: true
     
     - name: Build documentation
