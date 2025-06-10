@@ -1,4 +1,28 @@
-# Basic rustfmt configuration compatible with stable Rust
+# Rustfmt configuration for ChainCraft Rust
+
+# Edition 2021
+edition = "2021"
+
+# Maximum width of each line
 max_width = 100
-tab_spaces = 4
-edition = "2021" 
+
+# Maximum width of the args of a function call before falling back to vertical formatting
+fn_call_width = 80
+
+# Maximum width of the array elements before falling back to vertical formatting
+array_width = 80
+
+# Use field init shorthand if possible
+use_field_init_shorthand = true
+
+# Remove nested parens
+remove_nested_parens = true
+
+# Match block trailing comma
+match_block_trailing_comma = true
+
+# Newlines style
+newline_style = "Unix"
+
+# Force explicit types
+force_explicit_abi = true 
