@@ -1,14 +1,14 @@
-//! Error types for the ChainCraft library
+//! Error types for the Chaincraft library
 
 use std::net::SocketAddr;
 use thiserror::Error;
 
-/// Result type alias for ChainCraft operations
-pub type Result<T> = std::result::Result<T, ChainCraftError>;
+/// Result type alias for Chaincraft operations
+pub type Result<T> = std::result::Result<T, ChaincraftError>;
 
-/// Main error type for ChainCraft operations
+/// Main error type for Chaincraft operations
 #[derive(Error, Debug)]
-pub enum ChainCraftError {
+pub enum ChaincraftError {
     /// Network-related errors
     #[error("Network error: {0}")]
     Network(#[from] NetworkError),
@@ -187,30 +187,30 @@ pub enum SerializationError {
     FieldValidation { field: String, reason: String },
 }
 
-impl ChainCraftError {
+impl ChaincraftError {
     /// Create a validation error
-    pub fn validation<S: Into<String>>(msg: S) -> Self {
-        ChainCraftError::Validation(msg.into())
+    pub fn validation<T: Into<String>>(msg: T) -> Self {
+        ChaincraftError::Validation(msg.into())
     }
 
     /// Create a consensus error
-    pub fn consensus<S: Into<String>>(msg: S) -> Self {
-        ChainCraftError::Consensus(msg.into())
+    pub fn consensus<T: Into<String>>(msg: T) -> Self {
+        ChaincraftError::Consensus(msg.into())
     }
 
     /// Create a configuration error
-    pub fn config<S: Into<String>>(msg: S) -> Self {
-        ChainCraftError::Config(msg.into())
+    pub fn config<T: Into<String>>(msg: T) -> Self {
+        ChaincraftError::Config(msg.into())
     }
 
     /// Create a generic error
-    pub fn generic<S: Into<String>>(msg: S) -> Self {
-        ChainCraftError::Generic(msg.into())
+    pub fn generic<T: Into<String>>(msg: T) -> Self {
+        ChaincraftError::Generic(msg.into())
     }
 }
 
-impl From<serde_json::Error> for ChainCraftError {
+impl From<serde_json::Error> for ChaincraftError {
     fn from(err: serde_json::Error) -> Self {
-        ChainCraftError::Serialization(SerializationError::Json(err))
+        ChaincraftError::Serialization(SerializationError::Json(err))
     }
 }

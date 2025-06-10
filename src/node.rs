@@ -1,75 +1,64 @@
-//! ChainCraft node implementation
+//! Chaincraft node implementation
 
 use crate::{
     discovery::{DiscoveryConfig, DiscoveryManager},
-    error::{ChainCraftError, Result},
+    error::{ChaincraftError, Result},
     network::{PeerId, PeerInfo},
     shared::{MessageType, SharedMessage, SharedObjectId, SharedObjectRegistry},
     shared_object::{ApplicationObject, ApplicationObjectRegistry, SimpleSharedNumber},
-    storage::Storage,
+    storage::{MemoryStorage, Storage},
 };
+
 use serde::de::Error as SerdeDeError;
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{
+    collections::HashMap,
+    sync::Arc,
+};
 use tokio::sync::RwLock;
 
-/// Main node structure for ChainCraft network
-pub struct ChainCraftNode {
+/// Main node structure for Chaincraft network
+pub struct ChaincraftNode {
     /// Unique identifier for this node
     pub id: PeerId,
-
-    /// Registry for shared objects
+    /// Registry of shared objects
     pub registry: Arc<RwLock<SharedObjectRegistry>>,
-
-    /// Registry for application objects
+    /// Registry of application objects
     pub app_objects: Arc<RwLock<ApplicationObjectRegistry>>,
-
     /// Discovery manager
-    discovery: Option<Arc<DiscoveryManager>>,
-
+    pub discovery: Option<DiscoveryManager>,
     /// Storage backend
-    storage: Arc<dyn Storage>,
-
+    pub storage: Arc<dyn Storage>,
     /// Connected peers
-    peers: Arc<RwLock<HashMap<PeerId, PeerInfo>>>,
-
+    pub peers: Arc<RwLock<HashMap<PeerId, PeerInfo>>>,
     /// Node configuration
-    config: NodeConfig,
-
-    /// Runtime status
-    running: Arc<RwLock<bool>>,
+    pub config: NodeConfig,
+    /// Running flag
+    pub running: Arc<RwLock<bool>>,
 }
 
-impl ChainCraftNode {
-    /// Create a new ChainCraft node
+impl ChaincraftNode {
+    /// Create a new Chaincraft node
     pub fn new(id: PeerId, storage: Arc<dyn Storage>) -> Self {
-        Self {
-            id,
-            registry: Arc::new(RwLock::new(SharedObjectRegistry::new())),
-            app_objects: Arc::new(RwLock::new(ApplicationObjectRegistry::new())),
-            discovery: None, // Will be initialized during start if needed
-            storage,
-            peers: Arc::new(RwLock::new(HashMap::new())),
-            config: NodeConfig::default(),
-            running: Arc::new(RwLock::new(false)),
-        }
+        Self::builder()
+            .with_id(id)
+            .with_storage(storage)
+            .build()
+            .expect("Failed to create node")
     }
 
-    /// Create a new ChainCraft node with default settings
-    pub async fn new_default() -> Result<Self> {
-        let storage = Arc::new(crate::storage::MemoryStorage::new());
-        let id = PeerId::new();
-        Ok(Self::new(id, storage))
+    /// Create a new Chaincraft node with default settings
+    pub fn default() -> Self {
+        Self::new(PeerId::new(), Arc::new(MemoryStorage::new()))
     }
 
-    /// Create a new ChainCraft node with default settings (alias for compatibility with examples)
-    pub async fn new_with_defaults() -> Result<Self> {
-        Self::new_default().await
+    /// Create a new Chaincraft node with default settings (alias for compatibility with examples)
+    pub fn new_default() -> Self {
+        Self::default()
     }
 
-    /// Create a builder for this node
-    pub fn builder() -> ChainCraftNodeBuilder {
-        ChainCraftNodeBuilder::new()
+    /// Create a new node builder
+    pub fn builder() -> ChaincraftNodeBuilder {
+        ChaincraftNodeBuilder::new()
     }
 
     /// Start the node
@@ -132,21 +121,21 @@ impl ChainCraftNode {
         // Parse address and create PeerInfo
         let parts: Vec<&str> = peer_addr.split(':').collect();
         if parts.len() != 2 {
-            return Err(ChainCraftError::Network(crate::error::NetworkError::InvalidMessage {
+            return Err(ChaincraftError::Network(crate::error::NetworkError::InvalidMessage {
                 reason: "Invalid peer address format".to_string(),
             }));
         }
 
         let host = parts[0].to_string();
         let port: u16 = parts[1].parse().map_err(|_| {
-            ChainCraftError::Network(crate::error::NetworkError::InvalidMessage {
+            ChaincraftError::Network(crate::error::NetworkError::InvalidMessage {
                 reason: "Invalid port number".to_string(),
             })
         })?;
 
         let peer_id = PeerId::new(); // Generate a new peer ID
         let socket_addr = format!("{}:{}", host, port).parse().map_err(|_| {
-            ChainCraftError::Network(crate::error::NetworkError::InvalidMessage {
+            ChaincraftError::Network(crate::error::NetworkError::InvalidMessage {
                 reason: "Invalid socket address".to_string(),
             })
         })?;
@@ -199,7 +188,7 @@ impl ChainCraftNode {
     /// Create a shared message
     pub async fn create_shared_message(&mut self, data: String) -> Result<String> {
         let message_data = serde_json::to_value(&data).map_err(|e| {
-            ChainCraftError::Serialization(crate::error::SerializationError::Json(e))
+            ChaincraftError::Serialization(crate::error::SerializationError::Json(e))
         })?;
         let message =
             SharedMessage::new(MessageType::Custom("user_message".to_string()), message_data);
@@ -219,13 +208,13 @@ impl ChainCraftNode {
     pub async fn get_object(&self, hash: &str) -> Result<String> {
         if let Some(bytes) = self.storage.get(hash).await? {
             let s = String::from_utf8(bytes).map_err(|e| {
-                ChainCraftError::Serialization(crate::error::SerializationError::Json(
+                ChaincraftError::Serialization(crate::error::SerializationError::Json(
                     SerdeDeError::custom(e),
                 ))
             })?;
             Ok(s)
         } else {
-            Err(ChainCraftError::Storage(crate::error::StorageError::KeyNotFound {
+            Err(ChaincraftError::Storage(crate::error::StorageError::KeyNotFound {
                 key: hash.to_string(),
             }))
         }
@@ -361,15 +350,15 @@ impl Default for NodeConfig {
     }
 }
 
-/// Builder for ChainCraft nodes
-pub struct ChainCraftNodeBuilder {
+/// Builder for Chaincraft nodes
+pub struct ChaincraftNodeBuilder {
     id: Option<PeerId>,
     storage: Option<Arc<dyn Storage>>,
     config: NodeConfig,
     persistent: bool,
 }
 
-impl ChainCraftNodeBuilder {
+impl ChaincraftNodeBuilder {
     /// Create a new node builder
     pub fn new() -> Self {
         Self {
@@ -417,7 +406,7 @@ impl ChainCraftNodeBuilder {
     }
 
     /// Build the node
-    pub fn build(self) -> Result<ChainCraftNode> {
+    pub fn build(self) -> Result<ChaincraftNode> {
         // Generate a new random ID if not provided
         let id = self.id.unwrap_or_else(|| {
             use crate::network::PeerId;
@@ -430,7 +419,7 @@ impl ChainCraftNodeBuilder {
             Arc::new(MemoryStorage::new())
         });
 
-        Ok(ChainCraftNode {
+        Ok(ChaincraftNode {
             id,
             registry: Arc::new(RwLock::new(SharedObjectRegistry::new())),
             app_objects: Arc::new(RwLock::new(ApplicationObjectRegistry::new())),
@@ -443,7 +432,7 @@ impl ChainCraftNodeBuilder {
     }
 }
 
-impl Default for ChainCraftNodeBuilder {
+impl Default for ChaincraftNodeBuilder {
     fn default() -> Self {
         Self::new()
     }

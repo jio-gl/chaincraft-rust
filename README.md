@@ -1,11 +1,13 @@
-# ChainCraft Rust
+# Chaincraft Rust
 
 [![Crates.io](https://img.shields.io/crates/v/chaincraft-rust.svg)](https://crates.io/crates/chaincraft-rust)
 [![Documentation](https://docs.rs/chaincraft-rust/badge.svg)](https://docs.rs/chaincraft-rust)
 [![Build Status](https://github.com/chaincraft-org/chaincraft-rust/workflows/CI/badge.svg)](https://github.com/chaincraft-org/chaincraft-rust/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A high-performance Rust-based platform for blockchain education and prototyping. ChainCraft Rust provides a clean, well-documented implementation of core blockchain concepts with a focus on performance, security, and educational value.
+## Overview
+
+A high-performance Rust-based platform for blockchain education and prototyping. Chaincraft Rust provides a clean, well-documented implementation of core blockchain concepts with a focus on performance, security, and educational value.
 
 ## Features
 
@@ -37,7 +39,7 @@ cargo build --release
 
 ### Running a Node
 
-Start a ChainCraft node with default settings:
+Start a Chaincraft node with default settings:
 
 ```bash
 chaincraft-cli start
@@ -57,7 +59,7 @@ chaincraft-cli keygen
 
 ## Usage as a Library
 
-Add ChainCraft Rust to your `Cargo.toml`:
+Add Chaincraft Rust to your `Cargo.toml`:
 
 ```toml
 [dependencies]
@@ -67,11 +69,11 @@ chaincraft-rust = "0.1.0"
 ### Basic Example
 
 ```rust
-use chaincraft_rust::{ChainCraftNode, Result};
+use chaincraft_rust::{ChaincraftNode, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let mut node = ChainCraftNode::builder()
+    let mut node = ChaincraftNode::builder()
         .port(21000)
         .max_peers(10)
         .build()?;
@@ -90,12 +92,12 @@ async fn main() -> Result<()> {
 ### Advanced Configuration
 
 ```rust
-use chaincraft_rust::{ChainCraftNode, Result};
+use chaincraft_rust::{ChaincraftNode, Result};
 use chaincraft_rust::crypto::KeyType;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let mut node = ChainCraftNode::builder()
+    let mut node = ChaincraftNode::builder()
         .port(21000)
         .max_peers(50)
         .enable_compression()
@@ -113,7 +115,7 @@ async fn main() -> Result<()> {
 
 ## Architecture
 
-ChainCraft Rust is built with a modular architecture:
+Chaincraft Rust is built with a modular architecture:
 
 - **Core**: Basic blockchain data structures and validation logic
 - **Consensus**: Pluggable consensus mechanisms (currently implementing PoS)
@@ -225,7 +227,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## Performance
 
-ChainCraft Rust is designed for high performance:
+Chaincraft Rust is designed for high performance:
 
 - Zero-copy serialization where possible
 - Efficient async networking with tokio
