@@ -461,7 +461,7 @@ async fn test_round_time_advance() {
 
 #[tokio::test]
 async fn test_beacon_helper_functions() -> Result<()> {
-    let (mut node, beacon) = create_beacon_node().await;
+    let (mut node, _beacon) = create_beacon_node().await;
     let _signer = ECDSASigner::new()?;
 
     // Test beacon message creation
