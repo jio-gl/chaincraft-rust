@@ -109,13 +109,6 @@ jobs:
         override: true
         components: clippy
     
-    - name: Add MSRV specific dependencies
-      run: |
-        cargo update -p icu_collections --precise 1.0.0
-        cargo update -p icu_provider --precise 1.0.0
-        cargo update -p icu_normalizer --precise 1.0.0
-        cargo update -p icu_properties --precise 1.0.0
-    
     - name: Build with MSRV
       uses: actions-rs/cargo@v1
       with:

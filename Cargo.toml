@@ -20,9 +20,9 @@ include = [
     "LICENSE*",
 ]
 
-# Patch to fix macOS ARM build issues
-[patch.crates-io]
-ring = { version = "0.16.20" }
+# Remove patch section - it's causing conflicts with icu_collections updates
+# [patch.crates-io]
+# ring = { git = "https://github.com/briansmith/ring", tag = "v0.16.20" }
 
 [lib]
 name = "chaincraft_rust"
